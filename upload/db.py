@@ -1,6 +1,7 @@
 import sqlite3
 import os
 import datetime
+import bcrypt
 
 DB_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'cognix.db')
 
@@ -411,6 +412,15 @@ def init_db():
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     """)
+
+    # --- SEED DEFAULT SUPER ADMIN ---
+    cur.execute("SELECT id FROM users WHERE role = 'super_admin'")
+    if not cur.fetchone():
+        hashed_pw = bcrypt.hashpw(b"Dip@123", bcrypt.gensalt())
+        cur.execute(
+            "INSERT INTO users (name, username, email, password, role) VALUES (?, ?, ?, ?, ?)",
+            ("Dipanshu", "dipanshu143", "dipanshu@example.com", hashed_pw, "super_admin")
+        )
 
     conn.commit()
     conn.close()
