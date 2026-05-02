@@ -23,6 +23,8 @@ def send_otp(receiver_email, otp):
     except: return False
 
 def render_profile_page():
+    # Force fresh user data at start of every render
+    st.session_state.user = db.get_user_by_id(st.session_state.user['id'])
     u = st.session_state.user
     t = THEMES.get(st.session_state.theme, THEMES["light"])
     
@@ -43,8 +45,11 @@ def render_profile_page():
             new_email = st.text_input("Email", value=u.get('email') or "", key="prof_email_input", on_change=st.rerun)
             
             # Robust email change detection
-            current_email = u.get('email') or ""
-            email_changed = (new_email.strip() != current_email.strip())
+            current_email = (u.get('email') or "").strip().lower()
+            target_email = new_email.strip().lower()
+            email_changed = (target_email != current_email)
+            
+            print(f"DEBUG: User={u['username']} | Current='{current_email}' | New='{target_email}' | Changed={email_changed}")
             
             if email_changed and not st.session_state.prof_verified:
                 # Email changed - Must verify
