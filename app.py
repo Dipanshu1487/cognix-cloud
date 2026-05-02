@@ -77,13 +77,29 @@ with st.sidebar:
         nav_options.append("Upload")
     if st.session_state.user['role'] == 'super_admin':
         nav_options.append("Admin Requests")
-    
-    selected_page = st.radio("Menu", options=nav_options, label_visibility="collapsed")
-    st.session_state.current_page = selected_page
+        
+    if 'current_page' not in st.session_state:
+        st.session_state.current_page = "Dashboard"
+        
+    def on_nav_change():
+        st.session_state.current_page = st.session_state.nav_radio
+        
+    idx = nav_options.index(st.session_state.current_page) if st.session_state.current_page in nav_options else 0
+    selected_page = st.radio("Menu", options=nav_options, index=idx, key="nav_radio", label_visibility="collapsed", on_change=on_nav_change)
     
     st.markdown("<div style='flex-grow: 1;'></div>", unsafe_allow_html=True)
     
     # Settings & User
+    u = st.session_state.user
+    role_badge = "👑 Admin" if u['role'] == 'super_admin' else "👨‍🎓 Student"
+    st.markdown(f"""
+        <div style='background:{THEMES[st.session_state.theme]['hover']}; padding:16px; border-radius:12px; margin-bottom:12px;'>
+            <div style='font-weight:700; font-size:16px;'>{u['name']}</div>
+            <div style='color:{THEMES[st.session_state.theme]['muted']}; font-size:13px;'>{u['email']}</div>
+            <div style='margin-top:6px; font-size:11px; font-weight:700; color:{THEMES[st.session_state.theme]['accent']};'>{role_badge}</div>
+        </div>
+    """, unsafe_allow_html=True)
+    
     with st.expander("⚙️ Settings"):
         st.session_state.theme = st.selectbox("Theme", options=list(THEMES.keys()), index=list(THEMES.keys()).index(st.session_state.theme))
         st.session_state.accent = st.selectbox("Accent", options=list(ACCENTS.keys()), index=list(ACCENTS.keys()).index(st.session_state.accent))

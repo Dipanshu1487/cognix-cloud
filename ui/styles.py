@@ -67,14 +67,14 @@ html, body, p, li, input, button, textarea, select, .stMarkdown, .stText, .stCap
 }}
 
 /* Handle spans specifically to avoid breaking Material Icons/Ligatures */
-span:not([class*="material"]):not([data-testid*="Icon"]) {{
+span:not([class*="material"]):not([data-testid*="stIconMaterial"]):not([data-testid*="stExpanderToggleIcon"]):not([class*="icon"]):not(svg) {{
     font-family: 'Inter', sans-serif !important;
-    font-size: {s['fs']} !important;
+    font-size: inherit;
 }}
 
 /* PROTECTION FOR MATERIAL ICONS */
-.material-icons, [class*="material-icons"], [data-testid="stIconMaterial"] {{
-    font-family: 'Material Icons' !important;
+.material-icons, [class*="material-icons"], [data-testid="stIconMaterial"], [data-testid="stExpanderToggleIcon"] {{
+    font-family: 'Material Symbols Rounded', 'Material Icons', sans-serif !important;
     font-size: inherit !important;
     color: inherit !important;
 }}
