@@ -8,4 +8,3 @@ Pillow
 requests
 plotly
 psycopg2-binary
-sqlite3 # Built-in, but good to have listed for some envs
