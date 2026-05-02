@@ -69,12 +69,7 @@ with st.sidebar:
     render_logo(size="medium", align="flex-start")
     
     # User Profile Block (Sleek SaaS Layout)
-    u = st.session_state.user
-    role_badge = "Admin" if u['role'] == 'super_admin' else "Student"
-    user_email = u.get('email') or u.get('username', '')
-    initial = u['name'][0].upper() if u['name'] else "?"
-    
-    st.markdown(f"""
+        st.markdown(f"""
     <div style="display:flex; align-items:center; gap:12px; margin-top:16px; margin-bottom:12px; padding:12px; background:{THEMES[st.session_state.theme]['hover']}; border-radius:12px;">
         <div style="background:{THEMES[st.session_state.theme]['accent']}; color:white; width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:16px !important; flex-shrink:0;">
             {initial}
@@ -85,6 +80,10 @@ with st.sidebar:
         </div>
     </div>
     """, unsafe_allow_html=True)
+
+    if st.button("👤 View Profile", use_container_width=True):
+        st.session_state.current_page = "Profile"
+        st.rerun()
     
     st.markdown("<div style='margin-bottom: 24px;'></div>", unsafe_allow_html=True)
 
@@ -116,8 +115,6 @@ with st.sidebar:
             st.session_state.user = None
             st.rerun()
 
-
-
 # 7. ROUTING
 page = st.session_state.current_page
 
@@ -126,18 +123,10 @@ try:
         from ui.dashboard import render_dashboard
         render_dashboard()
     elif page == "Profile":
-        # Simple inline profile rendering since ui/profile_page.py is missing
-        st.header("👤 Your Profile")
-        with st.container(border=True):
-            col1, col2 = st.columns([1, 3])
-            with col1:
-                st.markdown(f"<div style='background:{THEMES[st.session_state.theme]['accent']}; color:white; width:100px; height:100px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:40px; font-weight:bold;'>{u['name'][0].upper()}</div>", unsafe_allow_html=True)
-            with col2:
-                st.subheader(u['name'])
-                st.write(f"**Email:** {user_email}")
-                st.write(f"**Role:** {role_badge}")
-                st.write(f"**Username:** {u['username']}")
+        from ui.profile_page import render_profile_page
+        render_profile_page()
     elif page == "Subjects":
+
         from ui.subjects_page import render_subjects_page
         render_subjects_page(sis)
     elif page == "Study":
