@@ -91,7 +91,7 @@ with st.sidebar:
     # Navigation
     st.markdown(f"<div style='font-size:14px; font-weight:600; color:{THEMES[st.session_state.theme]['muted']}; margin-bottom:12px;'>NAVIGATION</div>", unsafe_allow_html=True)
     
-    nav_options = ["Dashboard", "Subjects", "Study", "Practice", "Chat"]
+    nav_options = ["Dashboard", "Profile", "Subjects", "Study", "Practice", "Chat"]
     if st.session_state.user['role'] in ['admin', 'super_admin']:
         nav_options.append("Upload")
     if st.session_state.user['role'] == 'super_admin':
@@ -125,6 +125,18 @@ try:
     if page == "Dashboard":
         from ui.dashboard import render_dashboard
         render_dashboard()
+    elif page == "Profile":
+        # Simple inline profile rendering since ui/profile_page.py is missing
+        st.header("👤 Your Profile")
+        with st.container(border=True):
+            col1, col2 = st.columns([1, 3])
+            with col1:
+                st.markdown(f"<div style='background:{THEMES[st.session_state.theme]['accent']}; color:white; width:100px; height:100px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:40px; font-weight:bold;'>{u['name'][0].upper()}</div>", unsafe_allow_html=True)
+            with col2:
+                st.subheader(u['name'])
+                st.write(f"**Email:** {user_email}")
+                st.write(f"**Role:** {role_badge}")
+                st.write(f"**Username:** {u['username']}")
     elif page == "Subjects":
         from ui.subjects_page import render_subjects_page
         render_subjects_page(sis)
