@@ -8,5 +8,6 @@ Pillow
 requests
 plotly
 psycopg2-binary
-google-generativeai
+google-genai
+
 
