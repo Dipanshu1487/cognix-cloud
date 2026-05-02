@@ -2,6 +2,7 @@ import sqlite3
 import os
 import datetime
 import bcrypt
+import json
 
 DB_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'cognix.db')
 
@@ -422,28 +423,60 @@ def init_db():
             ("Dipanshu", "dipanshu143", "dipanshu@example.com", hashed_pw, "super_admin")
         )
 
-    # --- SEED CORE CURRICULUM ---
+    # --- SEED CORE CURRICULUM FROM JSON ---
     cur.execute("SELECT id FROM subjects LIMIT 1")
     if not cur.fetchone():
-        # 1. Mathematics
-        cur.execute("INSERT INTO subjects (name) VALUES ('Mathematics')")
-        m_id = cur.lastrowid
-        cur.execute("INSERT INTO units (subject_id, name) VALUES (?, 'Calculus')", (m_id,))
-        u_id = cur.lastrowid
-        cur.execute("INSERT INTO sections (unit_id, name) VALUES (?, 'Basics')", (u_id,))
-        s_id = cur.lastrowid
-        cur.execute("INSERT INTO topics (section_id, name) VALUES (?, 'Differentiation')", (s_id,))
-        cur.execute("INSERT INTO topics (section_id, name) VALUES (?, 'Integration')", (s_id,))
-
-        # 2. DSA
-        cur.execute("INSERT INTO subjects (name) VALUES ('Advanced Data Structures')")
-        d_id = cur.lastrowid
-        cur.execute("INSERT INTO units (subject_id, name) VALUES (?, 'Trees')", (d_id,))
-        t_unit_id = cur.lastrowid
-        cur.execute("INSERT INTO sections (unit_id, name) VALUES (?, 'Core')", (t_unit_id,))
-        t_sec_id = cur.lastrowid
-        cur.execute("INSERT INTO topics (section_id, name) VALUES (?, 'Binary Search Trees')", (t_sec_id,))
-        cur.execute("INSERT INTO topics (section_id, name) VALUES (?, 'AVL Trees')", (t_sec_id,))
+        seed_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'seed_data.json')
+        if os.path.exists(seed_path):
+            try:
+                with open(seed_path, 'r') as f:
+                    data = json.load(f)
+                
+                # We must map old IDs to new auto-incremented IDs to preserve relationships
+                id_map = {'subjects': {}, 'units': {}, 'sections': {}, 'topics': {}, 'subtopics': {}}
+                
+                for s in data.get('subjects', []):
+                    cur.execute("INSERT INTO subjects (name) VALUES (?)", (s['name'],))
+                    id_map['subjects'][s['id']] = cur.lastrowid
+                    
+                for u in data.get('units', []):
+                    new_sub_id = id_map['subjects'].get(u['subject_id'])
+                    if new_sub_id:
+                        cur.execute("INSERT INTO units (subject_id, name) VALUES (?, ?)", (new_sub_id, u['name']))
+                        id_map['units'][u['id']] = cur.lastrowid
+                        
+                for sec in data.get('sections', []):
+                    new_unit_id = id_map['units'].get(sec['unit_id'])
+                    if new_unit_id:
+                        cur.execute("INSERT INTO sections (unit_id, name) VALUES (?, ?)", (new_unit_id, sec['name']))
+                        id_map['sections'][sec['id']] = cur.lastrowid
+                        
+                for t in data.get('topics', []):
+                    new_sec_id = id_map['sections'].get(t['section_id'])
+                    if new_sec_id:
+                        cur.execute("INSERT INTO topics (section_id, name, description) VALUES (?, ?, ?)", 
+                                    (new_sec_id, t['name'], t.get('description')))
+                        id_map['topics'][t['id']] = cur.lastrowid
+                        
+                for st in data.get('subtopics', []):
+                    new_top_id = id_map['topics'].get(st['topic_id'])
+                    if new_top_id:
+                        cur.execute("INSERT INTO subtopics (topic_id, name, tags, difficulty) VALUES (?, ?, ?, ?)", 
+                                    (new_top_id, st['name'], st.get('tags'), st.get('difficulty')))
+                                    
+                for n in data.get('notes', []):
+                    new_top_id = id_map['topics'].get(n['topic_id'])
+                    if new_top_id:
+                        cur.execute("INSERT INTO notes (topic_id, content, file_path) VALUES (?, ?, ?)", 
+                                    (new_top_id, n.get('content'), n.get('file_path')))
+                                    
+                for q in data.get('questions', []):
+                    new_top_id = id_map['topics'].get(q['topic_id'])
+                    if new_top_id:
+                        cur.execute("INSERT INTO questions (topic_id, question_text, difficulty, answer, explanation, file_path) VALUES (?, ?, ?, ?, ?, ?)", 
+                                    (new_top_id, q.get('question_text'), q.get('difficulty'), q.get('answer'), q.get('explanation'), q.get('file_path')))
+            except Exception as e:
+                print(f"Error seeding database: {e}")
 
     conn.commit()
     conn.close()

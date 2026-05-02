@@ -1,0 +1,2465 @@
+{
+  "subjects": [
+    {
+      "id": 1,
+      "name": "Mathematics"
+    },
+    {
+      "id": 3,
+      "name": "Object Oriented Programming"
+    },
+    {
+      "id": 18,
+      "name": "COMPUTER ARCHITECTURE (CSA)"
+    },
+    {
+      "id": 19,
+      "name": "Advanced Data Structures"
+    }
+  ],
+  "units": [
+    {
+      "id": 39,
+      "subject_id": 18,
+      "name": "Unit 1: Introduction to Computer Technology"
+    },
+    {
+      "id": 40,
+      "subject_id": 18,
+      "name": "Unit 2: Instructions & Computer Organization"
+    },
+    {
+      "id": 41,
+      "subject_id": 18,
+      "name": "Unit 3: Computer Arithmetic & Micro-Operations"
+    },
+    {
+      "id": 42,
+      "subject_id": 18,
+      "name": "Unit 4: Memory Hierarchy & Storage"
+    },
+    {
+      "id": 43,
+      "subject_id": 18,
+      "name": "Unit 5: Advanced Topics & Parallel Processing"
+    },
+    {
+      "id": 44,
+      "subject_id": 3,
+      "name": "UNIT 1: OOP Fundamentals"
+    },
+    {
+      "id": 45,
+      "subject_id": 3,
+      "name": "UNIT 2: Inheritance & Polymorphism"
+    },
+    {
+      "id": 46,
+      "subject_id": 3,
+      "name": "UNIT 3: Constructors & Destructors"
+    },
+    {
+      "id": 47,
+      "subject_id": 3,
+      "name": "UNIT 4: Exception Handling"
+    },
+    {
+      "id": 48,
+      "subject_id": 3,
+      "name": "UNIT 5: Advanced OOP Concepts"
+    },
+    {
+      "id": 49,
+      "subject_id": 1,
+      "name": "Unit 1: Ordinary Differential Equations (ODE)"
+    },
+    {
+      "id": 50,
+      "subject_id": 1,
+      "name": "Unit 2: Laplace Transform"
+    },
+    {
+      "id": 51,
+      "subject_id": 1,
+      "name": "Unit 3: Fourier Series"
+    },
+    {
+      "id": 52,
+      "subject_id": 1,
+      "name": "Unit 4: Partial Differential Equations (PDE)"
+    },
+    {
+      "id": 53,
+      "subject_id": 1,
+      "name": "Unit 5: Statistical Techniques"
+    },
+    {
+      "id": 54,
+      "subject_id": 19,
+      "name": "UNIT 1: Advanced Trees"
+    },
+    {
+      "id": 55,
+      "subject_id": 19,
+      "name": "UNIT 2: Hashing"
+    },
+    {
+      "id": 56,
+      "subject_id": 19,
+      "name": "UNIT 3: Heaps and Priority Queues"
+    },
+    {
+      "id": 57,
+      "subject_id": 19,
+      "name": "UNIT 4: Graph Data Structures"
+    },
+    {
+      "id": 58,
+      "subject_id": 19,
+      "name": "UNIT 5: Advanced Topics"
+    }
+  ],
+  "sections": [
+    {
+      "id": 6,
+      "unit_id": 39,
+      "name": "General Content"
+    },
+    {
+      "id": 7,
+      "unit_id": 40,
+      "name": "General Content"
+    },
+    {
+      "id": 8,
+      "unit_id": 41,
+      "name": "General Content"
+    },
+    {
+      "id": 9,
+      "unit_id": 42,
+      "name": "General Content"
+    },
+    {
+      "id": 10,
+      "unit_id": 43,
+      "name": "General Content"
+    },
+    {
+      "id": 11,
+      "unit_id": 44,
+      "name": "General Content"
+    },
+    {
+      "id": 12,
+      "unit_id": 45,
+      "name": "General Content"
+    },
+    {
+      "id": 13,
+      "unit_id": 46,
+      "name": "General Content"
+    },
+    {
+      "id": 14,
+      "unit_id": 47,
+      "name": "General Content"
+    },
+    {
+      "id": 15,
+      "unit_id": 48,
+      "name": "General Content"
+    },
+    {
+      "id": 16,
+      "unit_id": 49,
+      "name": "General Content"
+    },
+    {
+      "id": 17,
+      "unit_id": 50,
+      "name": "General Content"
+    },
+    {
+      "id": 18,
+      "unit_id": 51,
+      "name": "General Content"
+    },
+    {
+      "id": 19,
+      "unit_id": 52,
+      "name": "General Content"
+    },
+    {
+      "id": 20,
+      "unit_id": 53,
+      "name": "General Content"
+    },
+    {
+      "id": 21,
+      "unit_id": 54,
+      "name": "Trees"
+    },
+    {
+      "id": 22,
+      "unit_id": 54,
+      "name": "AVL Trees"
+    },
+    {
+      "id": 23,
+      "unit_id": 54,
+      "name": "Red Black Trees"
+    },
+    {
+      "id": 24,
+      "unit_id": 54,
+      "name": "B-Trees"
+    },
+    {
+      "id": 25,
+      "unit_id": 55,
+      "name": "Basics"
+    },
+    {
+      "id": 26,
+      "unit_id": 55,
+      "name": "Open Addressing"
+    },
+    {
+      "id": 27,
+      "unit_id": 55,
+      "name": "Advanced Hashing"
+    },
+    {
+      "id": 28,
+      "unit_id": 56,
+      "name": "Binary Heap"
+    },
+    {
+      "id": 29,
+      "unit_id": 56,
+      "name": "Binomial Heap"
+    },
+    {
+      "id": 30,
+      "unit_id": 56,
+      "name": "Fibonacci Heap"
+    },
+    {
+      "id": 31,
+      "unit_id": 57,
+      "name": "Representation"
+    },
+    {
+      "id": 32,
+      "unit_id": 57,
+      "name": "Traversal"
+    },
+    {
+      "id": 33,
+      "unit_id": 57,
+      "name": "Algorithms"
+    },
+    {
+      "id": 34,
+      "unit_id": 58,
+      "name": "Disjoint Set"
+    },
+    {
+      "id": 35,
+      "unit_id": 58,
+      "name": "String Matching"
+    }
+  ],
+  "topics": [
+    {
+      "id": 149,
+      "section_id": 6,
+      "name": "Evolution of Computers",
+      "description": null
+    },
+    {
+      "id": 150,
+      "section_id": 6,
+      "name": "Components of Computer",
+      "description": null
+    },
+    {
+      "id": 151,
+      "section_id": 6,
+      "name": "Performance Measurement",
+      "description": null
+    },
+    {
+      "id": 152,
+      "section_id": 6,
+      "name": "Von Neumann Architecture",
+      "description": null
+    },
+    {
+      "id": 153,
+      "section_id": 6,
+      "name": "Data Representation",
+      "description": null
+    },
+    {
+      "id": 154,
+      "section_id": 6,
+      "name": "Multi-core Systems",
+      "description": null
+    },
+    {
+      "id": 155,
+      "section_id": 7,
+      "name": "Latches",
+      "description": null
+    },
+    {
+      "id": 156,
+      "section_id": 7,
+      "name": "Flip Flops",
+      "description": null
+    },
+    {
+      "id": 157,
+      "section_id": 7,
+      "name": "Master Slave Flip Flops",
+      "description": null
+    },
+    {
+      "id": 158,
+      "section_id": 7,
+      "name": "Excitation Table",
+      "description": null
+    },
+    {
+      "id": 159,
+      "section_id": 7,
+      "name": "Realization of Flip Flops",
+      "description": null
+    },
+    {
+      "id": 160,
+      "section_id": 7,
+      "name": "Registers",
+      "description": null
+    },
+    {
+      "id": 161,
+      "section_id": 7,
+      "name": "Shift Registers",
+      "description": null
+    },
+    {
+      "id": 162,
+      "section_id": 7,
+      "name": "Counters",
+      "description": null
+    },
+    {
+      "id": 163,
+      "section_id": 7,
+      "name": "Instruction Codes",
+      "description": null
+    },
+    {
+      "id": 164,
+      "section_id": 7,
+      "name": "Instruction Cycle",
+      "description": null
+    },
+    {
+      "id": 165,
+      "section_id": 7,
+      "name": "Timing & Control",
+      "description": null
+    },
+    {
+      "id": 166,
+      "section_id": 7,
+      "name": "Memory Reference Instructions",
+      "description": null
+    },
+    {
+      "id": 167,
+      "section_id": 7,
+      "name": "CPU Organization",
+      "description": null
+    },
+    {
+      "id": 168,
+      "section_id": 7,
+      "name": "Stack Organization",
+      "description": null
+    },
+    {
+      "id": 169,
+      "section_id": 7,
+      "name": "Instruction Formats",
+      "description": null
+    },
+    {
+      "id": 170,
+      "section_id": 7,
+      "name": "Addressing Modes",
+      "description": null
+    },
+    {
+      "id": 171,
+      "section_id": 7,
+      "name": "Data Transfer & Manipulation",
+      "description": null
+    },
+    {
+      "id": 172,
+      "section_id": 7,
+      "name": "CISC vs RISC",
+      "description": null
+    },
+    {
+      "id": 173,
+      "section_id": 8,
+      "name": "Arithmetic Operations",
+      "description": null
+    },
+    {
+      "id": 174,
+      "section_id": 8,
+      "name": "Floating Point Arithmetic",
+      "description": null
+    },
+    {
+      "id": 175,
+      "section_id": 8,
+      "name": "Decimal Arithmetic",
+      "description": null
+    },
+    {
+      "id": 176,
+      "section_id": 8,
+      "name": "Register Transfer",
+      "description": null
+    },
+    {
+      "id": 177,
+      "section_id": 8,
+      "name": "Bus & Memory Transfer",
+      "description": null
+    },
+    {
+      "id": 178,
+      "section_id": 8,
+      "name": "Arithmetic Micro Ops",
+      "description": null
+    },
+    {
+      "id": 179,
+      "section_id": 8,
+      "name": "Logic Micro Ops",
+      "description": null
+    },
+    {
+      "id": 180,
+      "section_id": 8,
+      "name": "Shift Micro Ops",
+      "description": null
+    },
+    {
+      "id": 181,
+      "section_id": 8,
+      "name": "ALU",
+      "description": null
+    },
+    {
+      "id": 182,
+      "section_id": 8,
+      "name": "Control Memory",
+      "description": null
+    },
+    {
+      "id": 183,
+      "section_id": 8,
+      "name": "Address Sequencing",
+      "description": null
+    },
+    {
+      "id": 184,
+      "section_id": 8,
+      "name": "Microprogram Example",
+      "description": null
+    },
+    {
+      "id": 185,
+      "section_id": 8,
+      "name": "Control Unit Design",
+      "description": null
+    },
+    {
+      "id": 186,
+      "section_id": 9,
+      "name": "Memory Hierarchy",
+      "description": null
+    },
+    {
+      "id": 187,
+      "section_id": 9,
+      "name": "Semiconductor Memory",
+      "description": null
+    },
+    {
+      "id": 188,
+      "section_id": 9,
+      "name": "Cache Memory",
+      "description": null
+    },
+    {
+      "id": 189,
+      "section_id": 9,
+      "name": "Virtual Memory",
+      "description": null
+    },
+    {
+      "id": 190,
+      "section_id": 9,
+      "name": "Secondary Storage",
+      "description": null
+    },
+    {
+      "id": 191,
+      "section_id": 9,
+      "name": "Input Output Organization",
+      "description": null
+    },
+    {
+      "id": 192,
+      "section_id": 9,
+      "name": "Programmed I/O",
+      "description": null
+    },
+    {
+      "id": 193,
+      "section_id": 9,
+      "name": "Memory Mapped I/O",
+      "description": null
+    },
+    {
+      "id": 194,
+      "section_id": 9,
+      "name": "Interrupt Driven I/O",
+      "description": null
+    },
+    {
+      "id": 195,
+      "section_id": 9,
+      "name": "DMA",
+      "description": null
+    },
+    {
+      "id": 196,
+      "section_id": 10,
+      "name": "Pipeline Architecture",
+      "description": null
+    },
+    {
+      "id": 197,
+      "section_id": 10,
+      "name": "Instruction Pipelining",
+      "description": null
+    },
+    {
+      "id": 198,
+      "section_id": 10,
+      "name": "Parallel Processing Basics",
+      "description": null
+    },
+    {
+      "id": 199,
+      "section_id": 10,
+      "name": "Multiprocessors",
+      "description": null
+    },
+    {
+      "id": 200,
+      "section_id": 10,
+      "name": "Performance Optimization",
+      "description": null
+    },
+    {
+      "id": 201,
+      "section_id": 10,
+      "name": "Amdahl\u2019s Law",
+      "description": null
+    },
+    {
+      "id": 202,
+      "section_id": 10,
+      "name": "Parallel Programming Techniques",
+      "description": null
+    },
+    {
+      "id": 203,
+      "section_id": 11,
+      "name": "Introduction to OOP",
+      "description": null
+    },
+    {
+      "id": 204,
+      "section_id": 11,
+      "name": "Procedural vs Object-Oriented Programming",
+      "description": null
+    },
+    {
+      "id": 205,
+      "section_id": 11,
+      "name": "Classes and Objects",
+      "description": null
+    },
+    {
+      "id": 206,
+      "section_id": 11,
+      "name": "Encapsulation",
+      "description": null
+    },
+    {
+      "id": 207,
+      "section_id": 11,
+      "name": "Abstraction",
+      "description": null
+    },
+    {
+      "id": 208,
+      "section_id": 11,
+      "name": "Data Hiding",
+      "description": null
+    },
+    {
+      "id": 209,
+      "section_id": 11,
+      "name": "Access Modifiers",
+      "description": null
+    },
+    {
+      "id": 210,
+      "section_id": 12,
+      "name": "Inheritance",
+      "description": null
+    },
+    {
+      "id": 211,
+      "section_id": 12,
+      "name": "Compile-time Polymorphism",
+      "description": null
+    },
+    {
+      "id": 212,
+      "section_id": 12,
+      "name": "Runtime Polymorphism",
+      "description": null
+    },
+    {
+      "id": 213,
+      "section_id": 13,
+      "name": "Constructors",
+      "description": null
+    },
+    {
+      "id": 214,
+      "section_id": 13,
+      "name": "Destructors",
+      "description": null
+    },
+    {
+      "id": 215,
+      "section_id": 14,
+      "name": "Exception Basics",
+      "description": null
+    },
+    {
+      "id": 216,
+      "section_id": 14,
+      "name": "Try-Catch Blocks",
+      "description": null
+    },
+    {
+      "id": 217,
+      "section_id": 14,
+      "name": "Throw Keyword",
+      "description": null
+    },
+    {
+      "id": 218,
+      "section_id": 14,
+      "name": "Multiple Catch",
+      "description": null
+    },
+    {
+      "id": 219,
+      "section_id": 14,
+      "name": "Custom Exceptions",
+      "description": null
+    },
+    {
+      "id": 220,
+      "section_id": 15,
+      "name": "Templates / Generics",
+      "description": null
+    },
+    {
+      "id": 221,
+      "section_id": 15,
+      "name": "File Handling",
+      "description": null
+    },
+    {
+      "id": 222,
+      "section_id": 15,
+      "name": "Standard Template Library (STL)",
+      "description": null
+    },
+    {
+      "id": 223,
+      "section_id": 15,
+      "name": "Friend Functions",
+      "description": null
+    },
+    {
+      "id": 224,
+      "section_id": 15,
+      "name": "Inline Functions",
+      "description": null
+    },
+    {
+      "id": 225,
+      "section_id": 16,
+      "name": "First Order Differential Equations",
+      "description": null
+    },
+    {
+      "id": 226,
+      "section_id": 16,
+      "name": "Higher Order Linear Differential Equations",
+      "description": null
+    },
+    {
+      "id": 227,
+      "section_id": 16,
+      "name": "Euler Homogeneous Equations",
+      "description": null
+    },
+    {
+      "id": 228,
+      "section_id": 16,
+      "name": "Method of Variation of Parameters",
+      "description": null
+    },
+    {
+      "id": 229,
+      "section_id": 17,
+      "name": "Basics of Laplace Transform",
+      "description": null
+    },
+    {
+      "id": 230,
+      "section_id": 17,
+      "name": "Laplace of Derivatives & Integrals",
+      "description": null
+    },
+    {
+      "id": 231,
+      "section_id": 17,
+      "name": "Inverse Laplace Transform",
+      "description": null
+    },
+    {
+      "id": 232,
+      "section_id": 17,
+      "name": "Special Functions",
+      "description": null
+    },
+    {
+      "id": 233,
+      "section_id": 17,
+      "name": "Convolution Theorem",
+      "description": null
+    },
+    {
+      "id": 234,
+      "section_id": 17,
+      "name": "Applications of Laplace Transform",
+      "description": null
+    },
+    {
+      "id": 235,
+      "section_id": 18,
+      "name": "Periodic Functions",
+      "description": null
+    },
+    {
+      "id": 236,
+      "section_id": 18,
+      "name": "Fourier Series Representation",
+      "description": null
+    },
+    {
+      "id": 237,
+      "section_id": 18,
+      "name": "Types of Functions",
+      "description": null
+    },
+    {
+      "id": 238,
+      "section_id": 18,
+      "name": "Change of Interval",
+      "description": null
+    },
+    {
+      "id": 239,
+      "section_id": 18,
+      "name": "Half Range Series",
+      "description": null
+    },
+    {
+      "id": 240,
+      "section_id": 19,
+      "name": "Introduction to PDE",
+      "description": null
+    },
+    {
+      "id": 241,
+      "section_id": 19,
+      "name": "Linear Partial Differential Equations",
+      "description": null
+    },
+    {
+      "id": 242,
+      "section_id": 19,
+      "name": "Method of Separation of Variables",
+      "description": null
+    },
+    {
+      "id": 243,
+      "section_id": 20,
+      "name": "Measures of Central Tendency",
+      "description": null
+    },
+    {
+      "id": 244,
+      "section_id": 20,
+      "name": "Moments",
+      "description": null
+    },
+    {
+      "id": 245,
+      "section_id": 20,
+      "name": "Moment Generating Function (MGF)",
+      "description": null
+    },
+    {
+      "id": 246,
+      "section_id": 20,
+      "name": "Skewness & Kurtosis",
+      "description": null
+    },
+    {
+      "id": 247,
+      "section_id": 20,
+      "name": "Correlation",
+      "description": null
+    },
+    {
+      "id": 248,
+      "section_id": 20,
+      "name": "Regression Analysis",
+      "description": null
+    },
+    {
+      "id": 249,
+      "section_id": 21,
+      "name": "Basic Terminologies",
+      "description": null
+    },
+    {
+      "id": 250,
+      "section_id": 21,
+      "name": "Binary Trees",
+      "description": null
+    },
+    {
+      "id": 251,
+      "section_id": 21,
+      "name": "Binary Search Trees",
+      "description": null
+    },
+    {
+      "id": 252,
+      "section_id": 22,
+      "name": "Rotations",
+      "description": null
+    },
+    {
+      "id": 253,
+      "section_id": 22,
+      "name": "Insertions",
+      "description": null
+    },
+    {
+      "id": 254,
+      "section_id": 22,
+      "name": "Deletions",
+      "description": null
+    },
+    {
+      "id": 255,
+      "section_id": 22,
+      "name": "Complexity Analysis",
+      "description": null
+    },
+    {
+      "id": 256,
+      "section_id": 23,
+      "name": "Properties",
+      "description": null
+    },
+    {
+      "id": 257,
+      "section_id": 23,
+      "name": "Insertions",
+      "description": null
+    },
+    {
+      "id": 258,
+      "section_id": 23,
+      "name": "Deletions",
+      "description": null
+    },
+    {
+      "id": 259,
+      "section_id": 23,
+      "name": "Applications",
+      "description": null
+    },
+    {
+      "id": 260,
+      "section_id": 24,
+      "name": "Properties",
+      "description": null
+    },
+    {
+      "id": 261,
+      "section_id": 24,
+      "name": "Insertions",
+      "description": null
+    },
+    {
+      "id": 262,
+      "section_id": 24,
+      "name": "Deletions",
+      "description": null
+    },
+    {
+      "id": 263,
+      "section_id": 24,
+      "name": "Search Operations",
+      "description": null
+    },
+    {
+      "id": 264,
+      "section_id": 25,
+      "name": "General Idea",
+      "description": null
+    },
+    {
+      "id": 265,
+      "section_id": 25,
+      "name": "Hash Function",
+      "description": null
+    },
+    {
+      "id": 266,
+      "section_id": 25,
+      "name": "Separate Chaining",
+      "description": null
+    },
+    {
+      "id": 267,
+      "section_id": 26,
+      "name": "Linear Probing",
+      "description": null
+    },
+    {
+      "id": 268,
+      "section_id": 26,
+      "name": "Quadratic Probing",
+      "description": null
+    },
+    {
+      "id": 269,
+      "section_id": 26,
+      "name": "Double Hashing",
+      "description": null
+    },
+    {
+      "id": 270,
+      "section_id": 27,
+      "name": "Universal Hashing",
+      "description": null
+    },
+    {
+      "id": 271,
+      "section_id": 27,
+      "name": "Extendible Hashing",
+      "description": null
+    },
+    {
+      "id": 272,
+      "section_id": 28,
+      "name": "Structure",
+      "description": null
+    },
+    {
+      "id": 273,
+      "section_id": 28,
+      "name": "Insertions",
+      "description": null
+    },
+    {
+      "id": 274,
+      "section_id": 28,
+      "name": "Deletions",
+      "description": null
+    },
+    {
+      "id": 275,
+      "section_id": 29,
+      "name": "Structure",
+      "description": null
+    },
+    {
+      "id": 276,
+      "section_id": 29,
+      "name": "Operations",
+      "description": null
+    },
+    {
+      "id": 277,
+      "section_id": 29,
+      "name": "Complexity Analysis",
+      "description": null
+    },
+    {
+      "id": 278,
+      "section_id": 30,
+      "name": "Structure",
+      "description": null
+    },
+    {
+      "id": 279,
+      "section_id": 30,
+      "name": "Decrease Key",
+      "description": null
+    },
+    {
+      "id": 280,
+      "section_id": 30,
+      "name": "Delete",
+      "description": null
+    },
+    {
+      "id": 281,
+      "section_id": 30,
+      "name": "Amortized Analysis",
+      "description": null
+    },
+    {
+      "id": 282,
+      "section_id": 31,
+      "name": "Adjacency List",
+      "description": null
+    },
+    {
+      "id": 283,
+      "section_id": 31,
+      "name": "Adjacency Matrix",
+      "description": null
+    },
+    {
+      "id": 284,
+      "section_id": 31,
+      "name": "Edge List",
+      "description": null
+    },
+    {
+      "id": 285,
+      "section_id": 32,
+      "name": "BFS",
+      "description": null
+    },
+    {
+      "id": 286,
+      "section_id": 32,
+      "name": "DFS",
+      "description": null
+    },
+    {
+      "id": 287,
+      "section_id": 33,
+      "name": "Topological Sort",
+      "description": null
+    },
+    {
+      "id": 288,
+      "section_id": 33,
+      "name": "Dijkstra",
+      "description": null
+    },
+    {
+      "id": 289,
+      "section_id": 33,
+      "name": "Bellman-Ford",
+      "description": null
+    },
+    {
+      "id": 290,
+      "section_id": 33,
+      "name": "Floyd-Warshall",
+      "description": null
+    },
+    {
+      "id": 291,
+      "section_id": 34,
+      "name": "Equivalence Relation",
+      "description": null
+    },
+    {
+      "id": 292,
+      "section_id": 34,
+      "name": "Union-Find",
+      "description": null
+    },
+    {
+      "id": 293,
+      "section_id": 34,
+      "name": "Path Compression",
+      "description": null
+    },
+    {
+      "id": 294,
+      "section_id": 35,
+      "name": "Naive Algorithm",
+      "description": null
+    },
+    {
+      "id": 295,
+      "section_id": 35,
+      "name": "Rabin-Karp Algorithm",
+      "description": null
+    }
+  ],
+  "subtopics": [
+    {
+      "id": 129,
+      "topic_id": 149,
+      "name": "Evolution of Computers",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 130,
+      "topic_id": 150,
+      "name": "Components of Computer",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 131,
+      "topic_id": 151,
+      "name": "Performance Measurement",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 132,
+      "topic_id": 152,
+      "name": "Von Neumann Architecture",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 133,
+      "topic_id": 153,
+      "name": "Fixed Point",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 134,
+      "topic_id": 153,
+      "name": "Floating Point",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 135,
+      "topic_id": 153,
+      "name": "Error Detection & Correction",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 136,
+      "topic_id": 154,
+      "name": "Multi-core Systems",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 137,
+      "topic_id": 155,
+      "name": "Latches",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 138,
+      "topic_id": 156,
+      "name": "SR Flip Flop",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 139,
+      "topic_id": 156,
+      "name": "JK Flip Flop",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 140,
+      "topic_id": 156,
+      "name": "D Flip Flop",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 141,
+      "topic_id": 156,
+      "name": "T Flip Flop",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 142,
+      "topic_id": 157,
+      "name": "Master Slave Flip Flops",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 143,
+      "topic_id": 158,
+      "name": "Excitation Table",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 144,
+      "topic_id": 159,
+      "name": "Realization of Flip Flops",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 145,
+      "topic_id": 160,
+      "name": "Registers",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 146,
+      "topic_id": 161,
+      "name": "Shift Registers",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 147,
+      "topic_id": 162,
+      "name": "Counters",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 148,
+      "topic_id": 163,
+      "name": "Instruction Codes",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 149,
+      "topic_id": 164,
+      "name": "Instruction Cycle",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 150,
+      "topic_id": 165,
+      "name": "Timing & Control",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 151,
+      "topic_id": 166,
+      "name": "Memory Reference Instructions",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 152,
+      "topic_id": 167,
+      "name": "CPU Organization",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 153,
+      "topic_id": 168,
+      "name": "Stack Organization",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 154,
+      "topic_id": 169,
+      "name": "Instruction Formats",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 155,
+      "topic_id": 170,
+      "name": "Addressing Modes",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 156,
+      "topic_id": 171,
+      "name": "Data Transfer & Manipulation",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 157,
+      "topic_id": 172,
+      "name": "CISC vs RISC",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 158,
+      "topic_id": 173,
+      "name": "Addition",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 159,
+      "topic_id": 173,
+      "name": "Subtraction",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 160,
+      "topic_id": 173,
+      "name": "Multiplication",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 161,
+      "topic_id": 173,
+      "name": "Division",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 162,
+      "topic_id": 174,
+      "name": "Floating Point Arithmetic",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 163,
+      "topic_id": 175,
+      "name": "Decimal Arithmetic",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 164,
+      "topic_id": 176,
+      "name": "Register Transfer",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 165,
+      "topic_id": 177,
+      "name": "Bus & Memory Transfer",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 166,
+      "topic_id": 178,
+      "name": "Arithmetic Micro Ops",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 167,
+      "topic_id": 179,
+      "name": "Logic Micro Ops",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 168,
+      "topic_id": 180,
+      "name": "Shift Micro Ops",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 169,
+      "topic_id": 181,
+      "name": "ALU",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 170,
+      "topic_id": 182,
+      "name": "Control Memory",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 171,
+      "topic_id": 183,
+      "name": "Address Sequencing",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 172,
+      "topic_id": 184,
+      "name": "Microprogram Example",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 173,
+      "topic_id": 185,
+      "name": "Control Unit Design",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 174,
+      "topic_id": 186,
+      "name": "Memory Hierarchy",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 175,
+      "topic_id": 187,
+      "name": "RAM",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 176,
+      "topic_id": 187,
+      "name": "ROM",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 177,
+      "topic_id": 188,
+      "name": "Mapping Techniques",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 178,
+      "topic_id": 188,
+      "name": "Performance Factors",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 179,
+      "topic_id": 189,
+      "name": "Paging",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 180,
+      "topic_id": 189,
+      "name": "Segmentation",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 181,
+      "topic_id": 190,
+      "name": "RAID",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 182,
+      "topic_id": 191,
+      "name": "I/O Interface",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 183,
+      "topic_id": 192,
+      "name": "Programmed I/O",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 184,
+      "topic_id": 193,
+      "name": "Memory Mapped I/O",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 185,
+      "topic_id": 194,
+      "name": "Interrupt Driven I/O",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 186,
+      "topic_id": 195,
+      "name": "DMA",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 187,
+      "topic_id": 196,
+      "name": "Pipeline Architecture",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 188,
+      "topic_id": 197,
+      "name": "Instruction Pipelining",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 189,
+      "topic_id": 198,
+      "name": "Multi-core Systems",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 190,
+      "topic_id": 199,
+      "name": "Interconnection Structures",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 191,
+      "topic_id": 199,
+      "name": "Arbitration",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 192,
+      "topic_id": 199,
+      "name": "Communication & Synchronization",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 193,
+      "topic_id": 199,
+      "name": "Cache Coherence",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 194,
+      "topic_id": 200,
+      "name": "Performance Optimization",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 195,
+      "topic_id": 201,
+      "name": "Amdahl\u2019s Law",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 196,
+      "topic_id": 202,
+      "name": "Parallel Programming Techniques",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 197,
+      "topic_id": 203,
+      "name": "Introduction to OOP",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 198,
+      "topic_id": 204,
+      "name": "Procedural vs Object-Oriented Programming",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 199,
+      "topic_id": 205,
+      "name": "Classes and Objects",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 200,
+      "topic_id": 206,
+      "name": "Encapsulation",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 201,
+      "topic_id": 207,
+      "name": "Abstraction",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 202,
+      "topic_id": 208,
+      "name": "Data Hiding",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 203,
+      "topic_id": 209,
+      "name": "Access Modifiers",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 204,
+      "topic_id": 210,
+      "name": "Types of Inheritance",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 205,
+      "topic_id": 210,
+      "name": "Access Control in Inheritance",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 206,
+      "topic_id": 211,
+      "name": "Function Overloading",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 207,
+      "topic_id": 211,
+      "name": "Operator Overloading",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 208,
+      "topic_id": 212,
+      "name": "Method Overriding",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 209,
+      "topic_id": 212,
+      "name": "Virtual Functions",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 210,
+      "topic_id": 213,
+      "name": "Default Constructor",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 211,
+      "topic_id": 213,
+      "name": "Parameterized Constructor",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 212,
+      "topic_id": 213,
+      "name": "Copy Constructor",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 213,
+      "topic_id": 213,
+      "name": "Constructor Overloading",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 214,
+      "topic_id": 214,
+      "name": "Destructors",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 215,
+      "topic_id": 215,
+      "name": "Exception Basics",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 216,
+      "topic_id": 216,
+      "name": "Try-Catch Blocks",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 217,
+      "topic_id": 217,
+      "name": "Throw Keyword",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 218,
+      "topic_id": 218,
+      "name": "Multiple Catch",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 219,
+      "topic_id": 219,
+      "name": "Custom Exceptions",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 220,
+      "topic_id": 220,
+      "name": "Templates / Generics",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 221,
+      "topic_id": 221,
+      "name": "File Handling",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 222,
+      "topic_id": 222,
+      "name": "Standard Template Library (STL)",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 223,
+      "topic_id": 223,
+      "name": "Friend Functions",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 224,
+      "topic_id": 224,
+      "name": "Inline Functions",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 225,
+      "topic_id": 225,
+      "name": "Separable Equations",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 226,
+      "topic_id": 225,
+      "name": "Homogeneous Equations",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 227,
+      "topic_id": 226,
+      "name": "Complementary Function",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 228,
+      "topic_id": 226,
+      "name": "Particular Integral",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 229,
+      "topic_id": 227,
+      "name": "Euler Homogeneous Equations",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 230,
+      "topic_id": 228,
+      "name": "Method of Variation of Parameters",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 231,
+      "topic_id": 229,
+      "name": "Definition",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 232,
+      "topic_id": 229,
+      "name": "Properties",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 233,
+      "topic_id": 230,
+      "name": "Laplace of Derivatives & Integrals",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 234,
+      "topic_id": 231,
+      "name": "Inverse Laplace Transform",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 235,
+      "topic_id": 232,
+      "name": "Unit Step Function",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 236,
+      "topic_id": 232,
+      "name": "Dirac Delta Function",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 237,
+      "topic_id": 233,
+      "name": "Convolution Theorem",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 238,
+      "topic_id": 234,
+      "name": "Applications of Laplace Transform",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 239,
+      "topic_id": 235,
+      "name": "Periodic Functions",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 240,
+      "topic_id": 236,
+      "name": "Euler Formula",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 241,
+      "topic_id": 237,
+      "name": "Even Functions",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 242,
+      "topic_id": 237,
+      "name": "Odd Functions",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 243,
+      "topic_id": 238,
+      "name": "Change of Interval",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 244,
+      "topic_id": 239,
+      "name": "Sine Series",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 245,
+      "topic_id": 239,
+      "name": "Cosine Series",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 246,
+      "topic_id": 240,
+      "name": "Introduction to PDE",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 247,
+      "topic_id": 241,
+      "name": "Linear Partial Differential Equations",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 248,
+      "topic_id": 242,
+      "name": "Method of Separation of Variables",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 249,
+      "topic_id": 243,
+      "name": "Mean",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 250,
+      "topic_id": 243,
+      "name": "Median",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 251,
+      "topic_id": 243,
+      "name": "Mode",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 252,
+      "topic_id": 244,
+      "name": "Moments",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 253,
+      "topic_id": 245,
+      "name": "Moment Generating Function (MGF)",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 254,
+      "topic_id": 246,
+      "name": "Skewness & Kurtosis",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 255,
+      "topic_id": 247,
+      "name": "Karl Pearson Correlation",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 256,
+      "topic_id": 247,
+      "name": "Rank Correlation",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 257,
+      "topic_id": 248,
+      "name": "Regression Lines",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 258,
+      "topic_id": 248,
+      "name": "Regression Coefficients",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 259,
+      "topic_id": 249,
+      "name": "Basic Terminologies",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 260,
+      "topic_id": 250,
+      "name": "Binary Trees",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 261,
+      "topic_id": 251,
+      "name": "Inorder",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 262,
+      "topic_id": 251,
+      "name": "Preorder",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 263,
+      "topic_id": 251,
+      "name": "Postorder",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 264,
+      "topic_id": 251,
+      "name": "Insert",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 265,
+      "topic_id": 251,
+      "name": "Delete",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 266,
+      "topic_id": 251,
+      "name": "Search",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 267,
+      "topic_id": 252,
+      "name": "Rotations",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 268,
+      "topic_id": 253,
+      "name": "Insertions",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 269,
+      "topic_id": 254,
+      "name": "Deletions",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 270,
+      "topic_id": 255,
+      "name": "Complexity Analysis",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 271,
+      "topic_id": 256,
+      "name": "Properties",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 272,
+      "topic_id": 257,
+      "name": "Insertions",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 273,
+      "topic_id": 258,
+      "name": "Deletions",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 274,
+      "topic_id": 259,
+      "name": "Applications",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 275,
+      "topic_id": 260,
+      "name": "Properties",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 276,
+      "topic_id": 261,
+      "name": "Insertions",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 277,
+      "topic_id": 262,
+      "name": "Deletions",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 278,
+      "topic_id": 263,
+      "name": "Search Operations",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 279,
+      "topic_id": 264,
+      "name": "General Idea",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 280,
+      "topic_id": 265,
+      "name": "Hash Function",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 281,
+      "topic_id": 266,
+      "name": "Separate Chaining",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 282,
+      "topic_id": 267,
+      "name": "Linear Probing",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 283,
+      "topic_id": 268,
+      "name": "Quadratic Probing",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 284,
+      "topic_id": 269,
+      "name": "Double Hashing",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 285,
+      "topic_id": 270,
+      "name": "Universal Hashing",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 286,
+      "topic_id": 271,
+      "name": "Extendible Hashing",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 287,
+      "topic_id": 272,
+      "name": "Structure",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 288,
+      "topic_id": 273,
+      "name": "Insertions",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 289,
+      "topic_id": 274,
+      "name": "Deletions",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 290,
+      "topic_id": 275,
+      "name": "Structure",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 291,
+      "topic_id": 276,
+      "name": "Operations",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 292,
+      "topic_id": 277,
+      "name": "Complexity Analysis",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 293,
+      "topic_id": 278,
+      "name": "Structure",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 294,
+      "topic_id": 279,
+      "name": "Decrease Key",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 295,
+      "topic_id": 280,
+      "name": "Delete",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 296,
+      "topic_id": 281,
+      "name": "Amortized Analysis",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 297,
+      "topic_id": 282,
+      "name": "Adjacency List",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 298,
+      "topic_id": 283,
+      "name": "Adjacency Matrix",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 299,
+      "topic_id": 284,
+      "name": "Edge List",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 300,
+      "topic_id": 285,
+      "name": "BFS",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 301,
+      "topic_id": 286,
+      "name": "DFS",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 302,
+      "topic_id": 287,
+      "name": "Topological Sort",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 303,
+      "topic_id": 288,
+      "name": "Dijkstra",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 304,
+      "topic_id": 289,
+      "name": "Bellman-Ford",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 305,
+      "topic_id": 290,
+      "name": "Floyd-Warshall",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 306,
+      "topic_id": 291,
+      "name": "Equivalence Relation",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 307,
+      "topic_id": 292,
+      "name": "Union-Find",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 308,
+      "topic_id": 293,
+      "name": "Path Compression",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 309,
+      "topic_id": 294,
+      "name": "Naive Algorithm",
+      "tags": null,
+      "difficulty": null
+    },
+    {
+      "id": 310,
+      "topic_id": 295,
+      "name": "Rabin-Karp Algorithm",
+      "tags": null,
+      "difficulty": null
+    }
+  ],
+  "notes": [
+    {
+      "id": 1,
+      "topic_id": 252,
+      "content": "",
+      "file_path": "uploads/WhatsApp Image 2026-04-25 at 7.56.29 PM.jpeg",
+      "created_at": "2026-04-26 09:00:04"
+    },
+    {
+      "id": 2,
+      "topic_id": 252,
+      "content": "",
+      "file_path": "uploads/WhatsApp Image 2026-04-25 at 7.56.44 PM.jpeg",
+      "created_at": "2026-04-28 15:05:05"
+    },
+    {
+      "id": 3,
+      "topic_id": 254,
+      "content": "",
+      "file_path": "uploads/WhatsApp Image 2026-04-25 at 7.56.57 PM.jpeg",
+      "created_at": "2026-04-28 15:05:56"
+    },
+    {
+      "id": 4,
+      "topic_id": 256,
+      "content": "",
+      "file_path": "uploads/RedBlackTree_Improved.pdf",
+      "created_at": "2026-04-28 15:10:14"
+    }
+  ],
+  "questions": []
+}
