@@ -68,23 +68,32 @@ sis = get_sis(st.session_state.db_config)
 with st.sidebar:
     render_logo(size="medium", align="flex-start")
     
-    # User Profile & Settings (Popover)
+    # User Profile Block (Sleek SaaS Layout)
     u = st.session_state.user
     role_badge = "Admin" if u['role'] == 'super_admin' else "Student"
     user_email = u.get('email') or u.get('username', '')
     initial = u['name'][0].upper() if u['name'] else "?"
     
-    with st.sidebar.popover(f"👤 {u['name']}", use_container_width=True):
-        st.markdown(f"**{u['name']}**")
-        st.caption(f"{user_email} • {role_badge}")
-        st.divider()
+    st.markdown(f"""
+    <div style="display:flex; align-items:center; gap:12px; margin-top:16px; margin-bottom:12px; padding:12px; background:{THEMES[st.session_state.theme]['hover']}; border-radius:12px;">
+        <div style="background:{THEMES[st.session_state.theme]['accent']}; color:white; width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:16px !important; flex-shrink:0;">
+            {initial}
+        </div>
+        <div style="overflow:hidden;">
+            <div style="font-weight:700; font-size:14px !important; color:{THEMES[st.session_state.theme]['text']} !important; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">{u['name']}</div>
+            <div style="font-size:12px !important; color:{THEMES[st.session_state.theme]['muted']} !important; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">{user_email}</div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    with st.expander("⚙️ Account Settings"):
         st.session_state.theme = st.selectbox("Theme", options=list(THEMES.keys()), index=list(THEMES.keys()).index(st.session_state.theme))
         st.session_state.accent = st.selectbox("Accent", options=list(ACCENTS.keys()), index=list(ACCENTS.keys()).index(st.session_state.accent))
         if st.button("Logout", use_container_width=True, type="primary"):
             st.session_state.user = None
             st.rerun()
     
-    st.markdown("<div style='margin-bottom: 24px;'></div>", unsafe_allow_html=True)
+    st.markdown("<hr style='margin: 16px 0; opacity: 0.2;'>", unsafe_allow_html=True)
 
     # Navigation
     st.markdown(f"<div style='font-size:14px; font-weight:600; color:{THEMES[st.session_state.theme]['muted']}; margin-bottom:12px;'>NAVIGATION</div>", unsafe_allow_html=True)
