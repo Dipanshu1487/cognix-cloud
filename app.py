@@ -48,9 +48,7 @@ def get_sis(db_config):
 
 # 4. GLOBAL STYLING
 def apply_global_styles():
-    t = THEMES[st.session_state.theme]
-    a = ACCENTS[st.session_state.accent]
-    st.markdown(build_css(t, a), unsafe_allow_html=True)
+    st.markdown(build_css(st.session_state.theme, st.session_state.accent), unsafe_allow_html=True)
 
 apply_global_styles()
 
