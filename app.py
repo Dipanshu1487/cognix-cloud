@@ -40,6 +40,11 @@ for key, val in state_defaults.items():
 from ui.styles import build_css, THEMES, ACCENTS
 from ui.components import render_logo, render_topbar
 from ui.auth import render_login_signup
+import upload.db as db
+
+# ── INITIALIZE DATABASE ──────────────────────────────────────────────
+db.init_db()
+
 
 # ── SIS CACHE ────────────────────────────────────────────────────────
 @st.cache_resource
