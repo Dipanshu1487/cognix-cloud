@@ -165,6 +165,15 @@ def change_password(user_id, hashed_pw):
     conn.commit()
     conn.close()
 
+def get_user_by_id(user_id):
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM users WHERE id = ?", (user_id,))
+    res = cur.fetchone()
+    conn.close()
+    return dict(res) if res else None
+
 def get_dashboard_stats(user_id):
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row

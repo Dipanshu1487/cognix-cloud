@@ -88,8 +88,8 @@ def render_profile_page():
                         # Direct update (either name change only or email already verified)
                         try:
                             db.update_profile(u['id'], new_name, new_email)
-                            st.session_state.user['name'] = new_name
-                            st.session_state.user['email'] = new_email
+                            st.session_state.user = db.get_user_by_id(u['id'])
+                            st.session_state.current_page = "Profile"
                             st.session_state.profile_email_verified = False # Reset for next time
                             st.success("Credentials updated successfully!")
                             st.rerun()
@@ -106,8 +106,8 @@ def render_profile_page():
                             # Correct OTP - Perform Update
                             try:
                                 db.update_profile(u['id'], st.session_state.profile_temp_name, st.session_state.profile_temp_email)
-                                st.session_state.user['name'] = st.session_state.profile_temp_name
-                                st.session_state.user['email'] = st.session_state.profile_temp_email
+                                st.session_state.user = db.get_user_by_id(u['id'])
+                                st.session_state.current_page = "Profile"
                                 st.session_state.profile_otp_sent = False
                                 st.session_state.profile_email_verified = False
                                 st.success("Email verified and profile updated!")
