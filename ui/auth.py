@@ -119,6 +119,7 @@ def render_login_signup():
                                 "id": user_row['id'],
                                 "name": user_row['name'],
                                 "username": user_row['username'],
+                                "email": user_row['email'],
                                 "role": user_row['role']
                             }
                             conn.close()

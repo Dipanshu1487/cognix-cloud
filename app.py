@@ -92,10 +92,11 @@ with st.sidebar:
     # Settings & User
     u = st.session_state.user
     role_badge = "👑 Admin" if u['role'] == 'super_admin' else "👨‍🎓 Student"
+    user_email = u.get('email') or u.get('username', '')
     st.markdown(f"""
         <div style='background:{THEMES[st.session_state.theme]['hover']}; padding:16px; border-radius:12px; margin-bottom:12px;'>
             <div style='font-weight:700; font-size:16px;'>{u['name']}</div>
-            <div style='color:{THEMES[st.session_state.theme]['muted']}; font-size:13px;'>{u['email']}</div>
+            <div style='color:{THEMES[st.session_state.theme]['muted']}; font-size:13px;'>{user_email}</div>
             <div style='margin-top:6px; font-size:11px; font-weight:700; color:{THEMES[st.session_state.theme]['accent']};'>{role_badge}</div>
         </div>
     """, unsafe_allow_html=True)
