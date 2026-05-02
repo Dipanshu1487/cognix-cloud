@@ -104,11 +104,12 @@ with st.sidebar:
     if 'current_page' not in st.session_state:
         st.session_state.current_page = "Dashboard"
         
-    def on_nav_change():
-        st.session_state.current_page = st.session_state.nav_radio
-        
     idx = nav_options.index(st.session_state.current_page) if st.session_state.current_page in nav_options else 0
-    selected_page = st.radio("Menu", options=nav_options, index=idx, key="nav_radio", label_visibility="collapsed", on_change=on_nav_change)
+    selected_page = st.radio("Menu", options=nav_options, index=idx, label_visibility="collapsed")
+    
+    if selected_page != st.session_state.current_page:
+        st.session_state.current_page = selected_page
+        st.rerun()
     
     st.markdown("<div style='flex-grow: 1;'></div>", unsafe_allow_html=True)
     
