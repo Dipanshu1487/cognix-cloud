@@ -69,7 +69,7 @@ with st.sidebar:
     render_logo(size="medium", align="flex-start")
     
     # User Profile Block (Sleek SaaS Layout)
-        st.markdown(f"""
+    st.markdown(f"""
     <div style="display:flex; align-items:center; gap:12px; margin-top:16px; margin-bottom:12px; padding:12px; background:{THEMES[st.session_state.theme]['hover']}; border-radius:12px;">
         <div style="background:{THEMES[st.session_state.theme]['accent']}; color:white; width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:16px !important; flex-shrink:0;">
             {initial}
