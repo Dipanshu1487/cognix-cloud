@@ -85,15 +85,8 @@ with st.sidebar:
         </div>
     </div>
     """, unsafe_allow_html=True)
-
-    with st.expander("⚙️ Account Settings"):
-        st.session_state.theme = st.selectbox("Theme", options=list(THEMES.keys()), index=list(THEMES.keys()).index(st.session_state.theme))
-        st.session_state.accent = st.selectbox("Accent", options=list(ACCENTS.keys()), index=list(ACCENTS.keys()).index(st.session_state.accent))
-        if st.button("Logout", use_container_width=True, type="primary"):
-            st.session_state.user = None
-            st.rerun()
     
-    st.markdown("<hr style='margin: 16px 0; opacity: 0.2;'>", unsafe_allow_html=True)
+    st.markdown("<div style='margin-bottom: 24px;'></div>", unsafe_allow_html=True)
 
     # Navigation
     st.markdown(f"<div style='font-size:14px; font-weight:600; color:{THEMES[st.session_state.theme]['muted']}; margin-bottom:12px;'>NAVIGATION</div>", unsafe_allow_html=True)
@@ -115,6 +108,14 @@ with st.sidebar:
     
     st.markdown("<div style='flex-grow: 1;'></div>", unsafe_allow_html=True)
     
+    # Settings
+    with st.expander("⚙️ Account Settings"):
+        st.session_state.theme = st.selectbox("Theme", options=list(THEMES.keys()), index=list(THEMES.keys()).index(st.session_state.theme))
+        st.session_state.accent = st.selectbox("Accent", options=list(ACCENTS.keys()), index=list(ACCENTS.keys()).index(st.session_state.accent))
+        if st.button("Logout", use_container_width=True, type="primary"):
+            st.session_state.user = None
+            st.rerun()
+
 
 
 # 7. ROUTING
