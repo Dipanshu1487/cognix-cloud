@@ -422,6 +422,25 @@ def init_db():
             ("Dipanshu", "dipanshu143", "dipanshu@example.com", hashed_pw, "super_admin")
         )
 
+    # --- SEED CORE CURRICULUM ---
+    cur.execute("SELECT id FROM subjects LIMIT 1")
+    if not cur.fetchone():
+        # 1. Mathematics
+        cur.execute("INSERT INTO subjects (name) VALUES ('Mathematics')")
+        m_id = cur.lastrowid
+        cur.execute("INSERT INTO units (subject_id, name) VALUES (?, 'Calculus')", (m_id,))
+        u_id = cur.lastrowid
+        cur.execute("INSERT INTO topics (unit_id, name) VALUES (?, 'Differentiation')", (u_id,))
+        cur.execute("INSERT INTO topics (unit_id, name) VALUES (?, 'Integration')", (u_id,))
+
+        # 2. DSA
+        cur.execute("INSERT INTO subjects (name) VALUES ('Advanced Data Structures')")
+        d_id = cur.lastrowid
+        cur.execute("INSERT INTO units (subject_id, name) VALUES (?, 'Trees')", (d_id,))
+        t_id = cur.lastrowid
+        cur.execute("INSERT INTO topics (unit_id, name) VALUES (?, 'Binary Search Trees')", (t_id,))
+        cur.execute("INSERT INTO topics (unit_id, name) VALUES (?, 'AVL Trees')", (t_id,))
+
     conn.commit()
     conn.close()
 
