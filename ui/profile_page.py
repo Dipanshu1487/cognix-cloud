@@ -69,11 +69,8 @@ def render_profile_page():
                 email_changed = (new_email != u.get('email', ''))
                 
                 st.write("")
-                submit_label = "Update Credentials"
-                if email_changed and not st.session_state.profile_email_verified:
-                    submit_label = "Send Verification OTP"
-                
-                if st.form_submit_button(submit_label, type="primary", use_container_width=True):
+                if st.form_submit_button("Update Credentials", type="primary", use_container_width=True):
+                    email_changed = (new_email != u.get('email', ''))
                     if email_changed and not st.session_state.profile_email_verified:
                         # Send OTP logic
                         otp = str(random.randint(1000, 9999))
