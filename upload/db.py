@@ -430,16 +430,20 @@ def init_db():
         m_id = cur.lastrowid
         cur.execute("INSERT INTO units (subject_id, name) VALUES (?, 'Calculus')", (m_id,))
         u_id = cur.lastrowid
-        cur.execute("INSERT INTO topics (unit_id, name) VALUES (?, 'Differentiation')", (u_id,))
-        cur.execute("INSERT INTO topics (unit_id, name) VALUES (?, 'Integration')", (u_id,))
+        cur.execute("INSERT INTO sections (unit_id, name) VALUES (?, 'Basics')", (u_id,))
+        s_id = cur.lastrowid
+        cur.execute("INSERT INTO topics (section_id, name) VALUES (?, 'Differentiation')", (s_id,))
+        cur.execute("INSERT INTO topics (section_id, name) VALUES (?, 'Integration')", (s_id,))
 
         # 2. DSA
         cur.execute("INSERT INTO subjects (name) VALUES ('Advanced Data Structures')")
         d_id = cur.lastrowid
         cur.execute("INSERT INTO units (subject_id, name) VALUES (?, 'Trees')", (d_id,))
-        t_id = cur.lastrowid
-        cur.execute("INSERT INTO topics (unit_id, name) VALUES (?, 'Binary Search Trees')", (t_id,))
-        cur.execute("INSERT INTO topics (unit_id, name) VALUES (?, 'AVL Trees')", (t_id,))
+        t_unit_id = cur.lastrowid
+        cur.execute("INSERT INTO sections (unit_id, name) VALUES (?, 'Core')", (t_unit_id,))
+        t_sec_id = cur.lastrowid
+        cur.execute("INSERT INTO topics (section_id, name) VALUES (?, 'Binary Search Trees')", (t_sec_id,))
+        cur.execute("INSERT INTO topics (section_id, name) VALUES (?, 'AVL Trees')", (t_sec_id,))
 
     conn.commit()
     conn.close()
