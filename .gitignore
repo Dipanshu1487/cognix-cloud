@@ -1,0 +1,35 @@
+# Virtual environments
+jarvis_env/
+jarvis_env_312/
+venv/
+.venv/
+
+# Cache
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Logs
+*.log
+
+# Audio files
+*.mp3
+*.wav
+
+# Environment secrets
+.env
+
+# Database
+*.db
+*.sqlite3
+
+# Uploads
+uploads/
+
+# Model weights
+models/
+
+# Build folders
+dist/
+build/
+*.egg-info/

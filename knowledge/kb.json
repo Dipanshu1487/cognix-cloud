@@ -1,0 +1,7 @@
+{
+    "tiger shroff": "Tiger Shroff is a popular Indian actor and martial artist, known for his work in Hindi films. He is famous for his exceptional dancing skills and intense action sequences in movies like Baaghi, Heropanti, and War.",
+    "differentiation": "In mathematics, differentiation is the process of finding the derivative, or rate of change, of a function. It measures how a function's output changes as its input changes, and is used extensively in calculus to find slopes of curves and rates of change.",
+    "stack": "A stack is a linear data structure that follows the Last-In, First-Out (LIFO) principle. Elements are added (push) and removed (pop) from only one end, called the top. It is commonly used in function calls, undo mechanisms, and expression parsing.",
+    "queue": "A queue is a linear data structure that follows the First-In, First-Out (FIFO) principle. Elements are added at the rear (enqueue) and removed from the front (dequeue). It is used in task scheduling, buffering, and message handling.",
+    "binary search": "Binary search is an efficient algorithm for finding an item from a sorted list of items. It works by repeatedly dividing in half the portion of the list that could contain the item, until you've narrowed down the possible locations to just one."
+}

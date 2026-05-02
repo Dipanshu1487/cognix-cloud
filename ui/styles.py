@@ -1,0 +1,171 @@
+"""
+cogniX OS — Production UI Engine (Optimized High Visibility)
+Massive typography with balanced spacing. Fixed icon text leakage and overlapping.
+"""
+
+# ── Color System ────────────────────────────────────────────────────
+THEMES = {
+    "light": {
+        "bg":           "#F8FAFC",
+        "card":         "#FFFFFF",
+        "text":         "#0F172A",
+        "muted":        "#64748B",
+        "border":       "#E5E7EB",
+        "sidebar":      "#FFFFFF",
+        "hover":        "#F1F5F9",
+        "active_bg":    "#E0F2FE",
+        "shadow":       "0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.1)",
+        "success":      "#22C55E",
+        "warning":      "#F59E0B",
+        "error":        "#EF4444",
+        "accent":       "#3B82F6",
+    },
+    "dark": { # Modern Dark SaaS
+        "bg":           "#0F172A",
+        "card":         "#1E293B",
+        "text":         "#F8FAFC",
+        "muted":        "#94A3B8",
+        "border":       "#334155",
+        "sidebar":      "#0F172A",
+        "hover":        "#334155",
+        "active_bg":    "#1E3A8A",
+        "shadow":       "0 4px 6px -1px rgba(0, 0, 0, 0.2)",
+        "success":      "#10B981",
+        "warning":      "#F59E0B",
+        "error":        "#EF4444",
+        "accent":       "#3B82F6",
+    },
+}
+
+ACCENTS = {
+    "blue":   "linear-gradient(135deg, #3B82F6 0%, #06B6D4 100%)",
+    "blue_solid": "#3B82F6",
+}
+
+SCALES = {
+    "small":  {"fs": "20px", "mw": "1000px"},
+    "medium": {"fs": "24px", "mw": "1200px"},
+    "large":  {"fs": "28px", "mw": "1400px"},
+}
+
+def build_css(theme_key="light", accent_key="blue", scale_key="medium", **_):
+    t = THEMES.get(theme_key, THEMES["light"])
+    a_grad = ACCENTS.get(accent_key, ACCENTS["blue"])
+    a_solid = ACCENTS.get(f"{accent_key}_solid", "#3B82F6")
+    s = SCALES.get(scale_key, SCALES["medium"])
+
+    return f"""<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* ── Typography System ─────────────────────────────────────────── */
+/* TARGET ONLY TEXT-BEARING ELEMENTS TO PREVENT ICON CORRUPTION */
+html, body, p, li, input, button, textarea, select, .stMarkdown, .stText, .stCaption {{
+    font-family: 'Inter', -apple-system, sans-serif !important;
+    font-size: {s['fs']} !important;
+    color: {t['text']} !important;
+    line-height: 1.6 !important;
+}}
+
+/* Handle spans specifically to avoid breaking Material Icons/Ligatures */
+span:not([class*="material"]):not([data-testid*="Icon"]) {{
+    font-family: 'Inter', sans-serif !important;
+    font-size: {s['fs']} !important;
+}}
+
+/* PROTECTION FOR MATERIAL ICONS */
+.material-icons, [class*="material-icons"], [data-testid="stIconMaterial"] {{
+    font-family: 'Material Icons' !important;
+    font-size: inherit !important;
+    color: inherit !important;
+}}
+
+h1 {{
+    font-size: 64px !important;
+    font-weight: 800 !important;
+    line-height: 1.2 !important;
+    margin-bottom: 24px !important;
+}}
+
+h2 {{
+    font-size: 44px !important;
+    font-weight: 700 !important;
+    margin-bottom: 20px !important;
+}}
+
+h3 {{
+    font-size: 34px !important;
+    font-weight: 600 !important;
+}}
+
+/* ── Layout ──────────────────────────────────────────────────── */
+.stApp {{ background: {t['bg']} !important; }}
+.block-container {{
+    max-width: {s['mw']} !important;
+    padding: 3rem 2.5rem 4rem !important;
+}}
+
+/* ── Sidebar ──────────────────────────────────────────────────── */
+[data-testid="stSidebar"] {{ width: 400px !important; }}
+
+/* ── Cards ─────────────────────────────────────────────────────── */
+[data-testid="stVerticalBlock"] > [style*="flex-direction: column;"] > [data-testid="stVerticalBlock"] {{
+    background: {t['card']} !important;
+    border: 1px solid {t['border']} !important;
+    border-radius: 20px !important;
+    padding: 32px !important;
+}}
+
+/* ── Buttons ───────────────────────────────────────────────────── */
+.stButton>button {{
+    border-radius: 16px !important;
+    font-weight: 700 !important;
+    font-size: 24px !important;
+    padding: 1.2rem 2.5rem !important;
+}}
+
+/* ── Metrics ───────────────────────────────────────────────────── */
+[data-testid="stMetricValue"] {{ font-size: 56px !important; font-weight: 800 !important; }}
+
+/* ── Tabs (Subjects) ───────────────────────────────────────────── */
+div[data-baseweb="tab-list"] {{
+    gap: 60px !important;
+    margin-bottom: 40px !important;
+}}
+
+div[data-baseweb="tab"] {{
+    padding: 16px 32px !important;
+    margin-right: 20px !important;
+}}
+
+/* ── FIX FOR OVERLAPPING / ICON TEXT LEAKAGE ───────────────────── */
+/* Hide text ligatures that Streamlit sometimes leaks when font-size is forced on icon containers */
+[data-testid="stExpander"] summary span,
+[data-testid="stPopover"] button span,
+[data-testid="stBaseButton-secondary"] span,
+[data-testid="stBaseButton-primary"] span {{
+    font-size: {s['fs']} !important;
+    overflow: hidden !important;
+    text-overflow: clip !important;
+    white-space: nowrap !important;
+}}
+
+/* Ensure SVGs maintain their own scale and don't show text fallbacks */
+svg, [data-testid="stIconMaterial"] {{
+    min-width: 24px !important;
+    min-height: 24px !important;
+    display: inline-block !important;
+}}
+
+/* Specifically target the expander arrow to prevent text leakage */
+[data-testid="stExpander"] [data-testid="stMarkdownContainer"] {{
+    font-size: {s['fs']} !important;
+}}
+
+/* ── Header Gradient Fix ───────────────────────────────────────── */
+h1#welcome-to-cognix {{
+    background: {a_grad};
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}}
+
+</style>"""
