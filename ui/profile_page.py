@@ -32,16 +32,18 @@ def render_profile_page():
             
             st.divider()
             
-            new_name = st.text_input("Update Name", value=u['name'])
-            new_email = st.text_input("Update Email", value=u.get('email', ''))
-            
-            if st.button("Save Changes", type="primary", key="save_profile_btn"):
-                try:
-                    db.update_profile(u['id'], new_name, new_email)
-                    st.session_state.user['name'] = new_name
-                    st.session_state.user['email'] = new_email
-                    st.session_state.current_page = "Profile"
-                    st.success("Profile updated successfully!")
-                    st.rerun()
-                except Exception as e:
-                    st.error(f"Error updating profile: {e}")
+            with st.form("profile_update_form"):
+                new_name = st.text_input("Update Name", value=u['name'])
+                new_email = st.text_input("Update Email", value=u.get('email', ''))
+                
+                if st.form_submit_button("Save Changes", type="primary", use_container_width=True):
+                    try:
+                        db.update_profile(u['id'], new_name, new_email)
+                        st.session_state.user['name'] = new_name
+                        st.session_state.user['email'] = new_email
+                        st.session_state.current_page = "Profile"
+                        print(f"DEBUG: Profile updated via form. Current page set to: {st.session_state.current_page}")
+                        st.success("Profile updated successfully!")
+                        st.rerun()
+                    except Exception as e:
+                        st.error(f"Error updating profile: {e}")
