@@ -144,6 +144,27 @@ def get_practice_topics(user_id):
     conn.close()
     return [dict(row) for row in res]
 
+def update_profile(user_id, name, email):
+    conn = sqlite3.connect(DB_PATH)
+    cur = conn.cursor()
+    cur.execute("UPDATE users SET name = ?, email = ? WHERE id = ?", (name, email, user_id))
+    conn.commit()
+    conn.close()
+
+def update_profile_photo(user_id, photo_url):
+    conn = sqlite3.connect(DB_PATH)
+    cur = conn.cursor()
+    cur.execute("UPDATE users SET profile_photo = ? WHERE id = ?", (photo_url, user_id))
+    conn.commit()
+    conn.close()
+
+def change_password(user_id, hashed_pw):
+    conn = sqlite3.connect(DB_PATH)
+    cur = conn.cursor()
+    cur.execute("UPDATE users SET password = ? WHERE id = ?", (hashed_pw, user_id))
+    conn.commit()
+    conn.close()
+
 def get_dashboard_stats(user_id):
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row

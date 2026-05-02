@@ -123,3 +123,23 @@ def render_profile_page():
                     if st.button("Cancel Verification"):
                         st.session_state.profile_otp_sent = False
                         st.rerun()
+
+            st.divider()
+            st.subheader("🔐 Security")
+            with st.form("password_update_form"):
+                new_pass = st.text_input("New Password", type="password")
+                conf_pass = st.text_input("Confirm New Password", type="password")
+                
+                if st.form_submit_button("Change Password", type="secondary", use_container_width=True):
+                    if new_pass != conf_pass:
+                        st.error("Passwords do not match!")
+                    elif len(new_pass) < 6:
+                        st.error("Password must be at least 6 characters.")
+                    else:
+                        try:
+                            import bcrypt
+                            hashed_pw = bcrypt.hashpw(new_pass.encode('utf-8'), bcrypt.gensalt())
+                            db.change_password(u['id'], hashed_pw)
+                            st.success("Password updated successfully!")
+                        except Exception as e:
+                            st.error(f"Password update failed: {e}")
