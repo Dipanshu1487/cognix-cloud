@@ -424,8 +424,17 @@ def init_db():
         )
 
     # --- SEED CORE CURRICULUM FROM JSON ---
-    cur.execute("SELECT id FROM subjects LIMIT 1")
-    if not cur.fetchone():
+    cur.execute("SELECT COUNT(*) FROM subjects")
+    subject_count = cur.fetchone()[0]
+    
+    if subject_count < 4:
+        # Clear out the incomplete/old hardcoded data
+        cur.execute("DELETE FROM subtopics")
+        cur.execute("DELETE FROM topics")
+        cur.execute("DELETE FROM sections")
+        cur.execute("DELETE FROM units")
+        cur.execute("DELETE FROM subjects")
+        
         seed_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'seed_data.json')
         if os.path.exists(seed_path):
             try:
