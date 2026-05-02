@@ -39,10 +39,12 @@ def render_profile_page():
         
         with c2:
             st.subheader("Edit Account Info")
-            new_name = st.text_input("Name", value=u['name'], key="prof_name_input")
-            new_email = st.text_input("Email", value=u.get('email', ''), key="prof_email_input")
+            new_name = st.text_input("Name", value=u['name'], key="prof_name_input", on_change=st.rerun)
+            new_email = st.text_input("Email", value=u.get('email') or "", key="prof_email_input", on_change=st.rerun)
             
-            email_changed = (new_email != u.get('email', ''))
+            # Robust email change detection
+            current_email = u.get('email') or ""
+            email_changed = (new_email.strip() != current_email.strip())
             
             if email_changed and not st.session_state.prof_verified:
                 # Email changed - Must verify
