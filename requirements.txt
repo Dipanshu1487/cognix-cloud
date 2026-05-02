@@ -1,31 +1,11 @@
-# cogniX - Required Dependencies
-# Install all: pip install -r requirements.txt
-
-# --- Core Audio & Speech ---
-faster-whisper           # Speech-to-text (listener.py)
-sounddevice              # Microphone recording (listener.py)
-scipy                    # WAV file writing (listener.py)
-numpy                    # Audio processing (listener.py)
-pvporcupine              # Wake word detection (wake_word.py)
-PyAudio                  # Audio stream for wake word (wake_word.py)
-edge-tts                 # Text-to-speech via Edge (voice.py)
-pygame                   # Audio playback for TTS (voice.py)
-
-# --- AI & Search ---
-ollama                   # Local LLM inference (brain.py)
-duckduckgo-search        # Internet search (internet_tools.py)
-
-# --- Browser Automation ---
-selenium                 # Browser control (browser_controller.py)
-webdriver-manager        # Auto-manage ChromeDriver (browser_controller.py)
-
-# --- System & Utilities ---
-psutil                   # Process management (run.py)
-pycaw                    # Windows audio control (system_control)
-comtypes                 # COM interface for pycaw (system_control)
-schedule                 # Task scheduling (reminder_scheduler.py)
-fastapi                  # Web API framework (server.py)
-uvicorn                  # ASGI server for FastAPI (server.py)
-pydantic                 # Data validation for API (server.py)
-streamlit                # Chat UI (ui/chat.py)
-requests                 # API communication for UI (ui/chat.py)
+# cogniX - Deployment Dependencies
+streamlit
+bcrypt
+python-dotenv
+pandas
+numpy
+Pillow
+requests
+plotly
+psycopg2-binary
+sqlite3 # Built-in, but good to have listed for some envs
