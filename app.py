@@ -196,5 +196,8 @@ try:
         from ui.admin_requests_page import render_admin_requests_page
         render_admin_requests_page()
 except Exception as e:
-    st.error(f"Module Loading Error: {e}")
-    st.info("Please try refreshing the page or contact the super admin.")
+    import traceback
+    st.error(f"⚠️ System Loading Error: {str(e)}")
+    with st.expander("🔍 Diagnostic Details (Traceback)"):
+        st.code(traceback.format_exc())
+    st.info("Tip: Ensure you have run 'pip install -r requirements.txt' in your active environment.")
