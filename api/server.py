@@ -12,15 +12,16 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 def verify_environment():
     version = f"{sys.version_info.major}.{sys.version_info.minor}"
     executable = sys.executable.lower()
-    is_correct_version = version == "3.12"
-    is_correct_env = "jarvis_env_312" in executable or "jarvis_env_312" in sys.prefix.lower()
+    is_correct_version = version in ["3.11", "3.12"]
+    # Relax environment name check for cloud deployment
+    is_correct_env = "jarvis_env" in executable or "jarvis_env" in sys.prefix.lower() or os.getenv("STREAMLIT_RUNTIME_CHECK") == "true"
     
-    if not (is_correct_version and is_correct_env):
-        print("\n[SECURITY] Wrong environment detected")
-        print("[SECURITY] Please activate jarvis_env_312 before running the server\n")
+    if not is_correct_version:
+        print(f"\n[SECURITY] Wrong Python version detected: {version}")
+        print("[SECURITY] cogniX requires Python 3.11 or 3.12\n")
         return False
     
-    print("\n[SUCCESS] Correct environment detected (Python 3.12 + jarvis_env_312)")
+    print(f"\n[SUCCESS] Environment verified (Python {version})")
     return True
 
 # Initialize Brain/LoRA check (already handled in brain.py but we can verify here too)

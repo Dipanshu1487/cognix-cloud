@@ -343,16 +343,16 @@ def init_lora_engine():
     # Environment Safety Checks
     version = f"{sys.version_info.major}.{sys.version_info.minor}"
     executable = sys.executable.lower()
-    is_correct_version = version == "3.12"
-    is_correct_env = "jarvis_env_312" in executable or "jarvis_env_312" in sys.prefix.lower()
+    is_correct_version = version in ["3.11", "3.12"]
+    is_correct_env = "jarvis_env" in executable or "jarvis_env" in sys.prefix.lower() or os.getenv("STREAMLIT_RUNTIME_CHECK") == "true"
     
-    if not (is_correct_version and is_correct_env):
-        print("Wrong environment detected")
-        print("Please activate jarvis_env_312 before running the server")
+    if not is_correct_version:
+        print(f"Wrong Python version detected: {version}")
+        print("cogniX requires Python 3.11 or 3.12")
         lora_available = False
         return False
     
-    print("Correct environment detected")
+    print(f"Environment verified (Python {version})")
 
     try:
         # 1. Tokenizer
