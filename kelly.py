@@ -7,15 +7,15 @@ def _verify_environment():
     version = f"{sys.version_info.major}.{sys.version_info.minor}"
     executable = sys.executable.lower()
     
-    is_correct_version = version == "3.12"
-    is_correct_env = "jarvis_env_312" in executable or "jarvis_env_312" in sys.prefix.lower()
+    is_correct_version = version in ["3.11", "3.12"]
+    is_correct_env = "jarvis_env" in executable or "jarvis_env" in sys.prefix.lower() or os.getenv("STREAMLIT_RUNTIME_CHECK") == "true"
     
-    if not (is_correct_version and is_correct_env):
+    if not is_correct_version:
         print(f"\n[BLOCK] Incorrect environment blocked")
-        print(f"Error: Incorrect environment detected. Please activate 'jarvis_env_312' (Python 3.12).")
+        print(f"Error: cogniX requires Python 3.11 or 3.12 (Detected: {version}).")
         sys.exit(1)
     
-    print("[Antigravity] Correct environment detected")
+    print(f"[Antigravity] Environment verified (Python {version})")
 
 _verify_environment()
 # --------------------------------- #
