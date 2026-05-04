@@ -22,6 +22,12 @@ def get_sis(db_config):
 
 def process_query(query_text):
     sis = get_sis(st.session_state.db_config)
+    
+    # Check for uploaded file context
+    file_context = ""
+    if st.session_state.get("pending_file_content"):
+        file_context = st.session_state.pending_file_content
+        
     active_topic_id = st.session_state.get("active_topic")
     topic_context = ""
     
@@ -56,16 +62,30 @@ def process_query(query_text):
         full_query = f"Previous topic: {last_topic}\nUser query: {query_text}\n\nSince this query is a follow-up, refer to the previous topic '{last_topic}' and provide a detailed academic response."
     else:
         full_query = f"You are an academic assistant. {topic_context}\n\nUser: {query_text}"
+    
+    if file_context:
+        full_query = f"{file_context}\n\nBased on the document context above, please answer this query: {query_text}"
 
     if "messages" not in st.session_state:
         st.session_state.messages = []
         
-    st.session_state.messages.append({"role": "You", "content": query_text})
+    display_text = query_text
+    if file_context:
+        # Don't show the massive text block in the UI bubble
+        display_text = f"📄 [Analyzing attached file] {query_text}"
+
+    st.session_state.messages.append({"role": "You", "content": display_text})
     st.session_state.is_thinking = True
     st.rerun()
 
 def get_response(query_text):
     sis = get_sis(st.session_state.db_config)
+    
+    file_context = ""
+    if st.session_state.get("pending_file_content"):
+        file_context = st.session_state.pending_file_content
+        st.session_state.pending_file_content = None # Clear it
+        
     active_topic_id = st.session_state.get("active_topic")
     topic_context = ""
     
@@ -98,6 +118,9 @@ def get_response(query_text):
         full_query = f"Previous topic: {last_topic}\nUser query: {query_text}\n\nSince this query is a follow-up, refer to the previous topic '{last_topic}' and provide a detailed academic response."
     else:
         full_query = f"You are an academic assistant. {topic_context}\n\nUser: {query_text}"
+    
+    if file_context:
+        full_query = f"{file_context}\n\nBased on the document context above, please answer this query: {query_text}"
     
     try:
         response = requests.post("http://127.0.0.1:8000/chat", json={"query": full_query}, timeout=30)
@@ -258,10 +281,35 @@ def render_chat():
             if att_file:
                 st.info(f"Attached: {att_file.name}")
                 if st.button("Analyze Attachment", use_container_width=True):
-                    # Placeholder for analysis logic
-                    st.session_state.messages.append({"role": "You", "content": f"[Attached File: {att_file.name}]"})
-                    st.session_state.messages.append({"role": "cogniX", "content": f"I've received your file: {att_file.name}. I'm analyzing its content to help you better."})
-                    st.rerun()
+                    content_text = ""
+                    file_type = att_file.type
+                    
+                    try:
+                        if "text/plain" in file_type:
+                            content_text = att_file.read().decode()
+                        elif "pdf" in file_type:
+                            import pdfplumber
+                            with pdfplumber.open(att_file) as pdf:
+                                content_text = "\n".join([page.extract_text() for page in pdf.pages if page.extract_text()])
+                        elif "image" in file_type:
+                            img_data = att_file.read()
+                            from core.gemini_engine import ask_gemini
+                            with st.spinner("Analyzing image with Gemini..."):
+                                response = ask_gemini("Analyze this image for academic content and explain it.", image_data=img_data)
+                                st.session_state.messages.append({"role": "You", "content": f"[Image Uploaded: {att_file.name}]"})
+                                st.session_state.messages.append({"role": "cogniX", "content": response})
+                                st.rerun()
+
+                        if content_text:
+                            # Send extracted text to the brain
+                            st.session_state.messages.append({"role": "You", "content": f"[File Uploaded: {att_file.name}]"})
+                            st.session_state.is_thinking = True
+                            # Inject content into the next processing cycle
+                            st.session_state.pending_file_content = f"CONTEXT FROM UPLOADED FILE '{att_file.name}':\n\n{content_text[:2000]}"
+                            st.rerun()
+                            
+                    except Exception as e:
+                        st.error(f"Error analyzing file: {e}")
 
 if __name__ == "__main__":
     # If run standalone for testing
