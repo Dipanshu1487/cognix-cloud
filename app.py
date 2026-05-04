@@ -116,10 +116,17 @@ with st.sidebar:
     if 'current_page' not in st.session_state:
         st.session_state.current_page = "Dashboard"
         
-    if not st.session_state.backend_active:
-        st.warning("⚠️ Cognitive Engine (Backend) is offline. AI features are disabled.")
-        if st.button("🔄 Restart & Connect", use_container_width=True):
-            st.rerun()
+    if not st.session_state.backend_active and not st.session_state.get("hide_backend_warning"):
+        with st.container(border=True):
+            st.warning("⚠️ Cognitive Engine is offline.")
+            c1, c2 = st.columns(2)
+            with c1:
+                if st.button("🔄 Connect", use_container_width=True):
+                    st.rerun()
+            with c2:
+                if st.button("✖️ Dismiss", use_container_width=True):
+                    st.session_state.hide_backend_warning = True
+                    st.rerun()
         st.markdown("---")
     
     idx = nav_options.index(st.session_state.current_page) if st.session_state.current_page in nav_options else 0

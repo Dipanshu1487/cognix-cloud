@@ -125,8 +125,17 @@ def get_response(query_text):
     try:
         response = requests.post("http://127.0.0.1:8000/chat", json={"query": full_query}, timeout=30)
         jarvis_response = response.json().get("response", "No response received.") if response.status_code == 200 else f"Error: {response.status_code}"
-    except:
-        jarvis_response = "Error connecting to backend. Please ensure the cognitive engine is running."
+    except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
+        # FALLBACK TO GEMINI DIRECTLY
+        from core.gemini_engine import ask_gemini
+        try:
+            jarvis_response = ask_gemini(full_query)
+            # Add a small hint that we're using fallback
+            jarvis_response = f"✨ [Gemini Fallback] {jarvis_response}"
+        except Exception as e:
+            jarvis_response = f"Backend Unreachable & Gemini Error: {e}"
+    except Exception as e:
+        jarvis_response = f"Error: {e}"
 
     tracking_data = {"logged": False}
     if detection and isinstance(detection, dict):
