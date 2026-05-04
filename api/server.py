@@ -54,7 +54,13 @@ class QueryResponse(BaseModel):
 
 @app.get("/health")
 async def health_check():
-    return {"status": "online", "environment": sys.version}
+    import torch
+    hw = f"GPU: {torch.cuda.get_device_name(0)}" if torch.cuda.is_available() else "CPU Mode"
+    return {
+        "status": "online", 
+        "environment": sys.version.split()[0],
+        "hardware": hw
+    }
 
 @app.post("/chat", response_model=QueryResponse)
 async def chat(request: QueryRequest):
