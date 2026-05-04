@@ -4,6 +4,43 @@ from dotenv import load_dotenv
 from memory.student_intelligence import StudentIntelligenceSystem
 import bcrypt
 
+# --- BACKEND AUTO-START (SAFE) ---
+def start_backend_if_needed():
+    if st.session_state.get("backend_started", False):
+        return
+    
+    import requests
+    import subprocess
+    import time
+    import sys
+    
+    # 1. Health Check
+    url = "http://127.0.0.1:8000/health"
+    try:
+        res = requests.get(url, timeout=1)
+        if res.status_code == 200:
+            st.session_state.backend_started = True
+            return
+    except:
+        pass
+
+    # 2. Detect & Start Backend
+    print("[SYSTEM] Initializing Cognitive Engine...")
+    py_exe = sys.executable
+    env_312 = os.path.abspath("jarvis_env_312/Scripts/python.exe")
+    if os.path.exists(env_312):
+        py_exe = env_312
+    
+    try:
+        # Start uvicorn with logs suppressed
+        cmd = [py_exe, "-m", "uvicorn", "api.server:app", "--host", "127.0.0.1", "--port", "8000"]
+        subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        time.sleep(2) 
+        st.session_state.backend_started = True
+        print("[SYSTEM] Engine started successfully.")
+    except Exception as e:
+        print(f"[ERROR] Engine failed to ignite: {e}")
+
 # 1. INITIALIZATION & CONFIG
 load_dotenv()
 
@@ -66,43 +103,18 @@ if st.session_state.user is None:
 # 6. MAIN APPLICATION UI
 sis = get_sis(st.session_state.db_config)
 
-# Backend Health Monitor & Auto-Start
-def check_backend():
-    import requests
-    import subprocess
-    import time
-    
-    url = "http://127.0.0.1:8000/health"
-    try:
-        res = requests.get(url, timeout=1)
-        if res.status_code == 200:
-            return True
-    except:
-        # Auto-Start Attempt
-        if st.session_state.get("auto_start_tried", False):
-            return False
-            
-        st.session_state.auto_start_tried = True
-        try:
-            # Detect environment
-            import sys
-            py_exe = sys.executable
-            env_312 = os.path.abspath("jarvis_env_312/Scripts/python.exe")
-            if os.path.exists(env_312):
-                py_exe = env_312
-                
-            # Launch in background
-            cmd = f'"{py_exe}" -m uvicorn api.server:app --host 0.0.0.0 --port 8000 --reload'
-            subprocess.Popen(cmd, shell=True, creationflags=subprocess.CREATE_NEW_CONSOLE if os.name == 'nt' else 0)
-            
-            # Wait a moment for port to open
-            time.sleep(2)
-            return False # Still return false initially, let the sidebar refresh catch it
-        except:
-            return False
-    return False
+start_backend_if_needed()
 
-st.session_state.backend_active = check_backend()
+# Check current status for UI
+def get_backend_status():
+    import requests
+    try:
+        res = requests.get("http://127.0.0.1:8000/health", timeout=1)
+        return res.status_code == 200
+    except:
+        return False
+
+st.session_state.backend_active = get_backend_status()
 
 # Fetch extended health info if active
 if st.session_state.backend_active:
