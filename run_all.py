@@ -17,31 +17,32 @@ def main():
     print("="*40 + "\n")
 
     # Environment Path Setup
-    # Force use of jarvis_env_312 to prevent "command not found" errors
-    python_exe = os.path.abspath("jarvis_env_312/Scripts/python.exe")
+    # Flexible search for the environment
+    python_exe = sys.executable # Default fallback
+    env_paths = ["jarvis_env_312/Scripts/python.exe", "jarvis_env/Scripts/python.exe", "venv/Scripts/python.exe"]
     
-    if not os.path.exists(python_exe):
-        print(f"[ERROR] Virtual environment not found at {python_exe}")
-        print("Please ensure jarvis_env_312 exists in the project root.")
-        return
+    for p in env_paths:
+        abs_p = os.path.abspath(p)
+        if os.path.exists(abs_p):
+            python_exe = abs_p
+            print(f"[SYSTEM] Using environment: {p}")
+            break
 
     try:
         # Step 1: Start FastAPI backend
         print("[SYSTEM] Starting cogniX Backend...")
-        # Use absolute python path to run uvicorn as a module
         backend_cmd = f'"{python_exe}" -m uvicorn api.server:app --host 127.0.0.1 --port 8000 --reload'
         backend_proc = subprocess.Popen(backend_cmd, shell=True)
         processes.append(backend_proc)
         print("[SYSTEM] Backend initializing...")
 
-        # Step 2: Wait 7-10 seconds for LoRA/Model stabilization
-        # Heavy models like Phi-2 with LoRA adapters need more time to load into VRAM
+        # Step 2: Wait for Model stabilization
         print("[SYSTEM] Loading Academic Brain (LoRA)... please hold...")
         time.sleep(8)
 
         # Step 3: Start Streamlit UI
         print("\n[SYSTEM] Launching Chat UI...")
-        ui_cmd = f'"{python_exe}" -m streamlit run ui/app.py'
+        ui_cmd = f'"{python_exe}" -m streamlit run app.py'
         ui_proc = subprocess.Popen(ui_cmd, shell=True)
         processes.append(ui_proc)
         print("[SYSTEM] UI running on http://localhost:8501")
