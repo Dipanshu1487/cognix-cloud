@@ -1,4 +1,4 @@
-# cogniX - Deployment Dependencies
+# cogniX - Unified Deployment Dependencies
 streamlit
 bcrypt
 python-dotenv
@@ -13,3 +13,14 @@ faster-whisper
 sounddevice
 pdfplumber
 scipy
+edge-tts
+pygame
+fastapi
+uvicorn
+pydantic
+pyttsx3
+torch
+transformers
+peft
+bitsandbytes
+accelerate
