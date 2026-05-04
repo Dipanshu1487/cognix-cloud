@@ -29,7 +29,18 @@ env_stable = verify_environment()
 
 from core.brain import process_query
 
+from fastapi.middleware.cors import CORSMiddleware
+
 app = FastAPI(title="cogniX AI API", description="Modular API layer for the cogniX Assistant Framework")
+
+# Enable CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

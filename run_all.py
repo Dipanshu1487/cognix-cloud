@@ -31,7 +31,7 @@ def main():
     try:
         # Step 1: Start FastAPI backend
         print("[SYSTEM] Starting cogniX Backend...")
-        backend_cmd = f'"{python_exe}" -m uvicorn api.server:app --host 127.0.0.1 --port 8000 --reload'
+        backend_cmd = f'"{python_exe}" -m uvicorn api.server:app --host 0.0.0.0 --port 8000 --reload'
         backend_proc = subprocess.Popen(backend_cmd, shell=True)
         processes.append(backend_proc)
         print("[SYSTEM] Backend initializing...")
