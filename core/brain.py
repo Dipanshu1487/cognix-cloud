@@ -18,8 +18,10 @@ from core.normalizer import normalize_query
 print("CUDA Available:", torch.cuda.is_available())
 if torch.cuda.is_available():
     print("GPU:", torch.cuda.get_device_name(0))
+    DEVICE = "cuda"
 else:
-    print("[ERROR] CUDA not available! Jarvis requires a GPU for stable operation.")
+    print("[WARNING] CUDA not available! cogniX will run in CPU-Optimization mode. Performance may be slower.")
+    DEVICE = "cpu"
 
 BASE_MODEL_PATH = r"E:\phi2_repo"
 ADAPTER_PATH = r"E:\jarvis_lora_results\final_adapter"
@@ -360,12 +362,13 @@ def init_lora_engine():
         _lora_tokenizer.pad_token = _lora_tokenizer.eos_token if _lora_tokenizer.eos_token else "<|endoftext|>"
         _lora_tokenizer.padding_side = "right"
 
-        # 2. BitsAndBytes 4-bit Config for GPU stability (fits in 6GB)
+        # 2. Config with CPU Offload Support
         bnb_config = BitsAndBytesConfig(
             load_in_4bit=True,
-            bnb_4bit_quant_type="nf4",
-            bnb_4bit_compute_dtype=torch.float16,
             bnb_4bit_use_double_quant=True,
+            bnb_4bit_quant_type="nf4",
+            bnb_4bit_compute_dtype=torch.float16 if torch.cuda.is_available() else torch.float32,
+            llm_int8_enable_fp32_cpu_offload=True # Support CPU offloading
         )
 
         # 3. Load Base Model (Memory-Optimized 4-bit)
@@ -374,8 +377,6 @@ def init_lora_engine():
             base_model = AutoModelForCausalLM.from_pretrained(
                 BASE_MODEL_PATH,
                 quantization_config=bnb_config,
-                torch_dtype=torch.float16,  # Use float16 to halve RAM usage during load
-                trust_remote_code=True,
                 device_map="auto",
                 low_cpu_mem_usage=True
             )
