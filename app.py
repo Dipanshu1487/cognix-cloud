@@ -77,6 +77,17 @@ def check_backend():
 
 st.session_state.backend_active = check_backend()
 
+# Fetch extended health info if active
+if st.session_state.backend_active:
+    try:
+        import requests
+        h_info = requests.get("http://127.0.0.1:8000/health", timeout=1).json()
+        st.session_state.hw_info = h_info.get("hardware", "Unknown")
+    except:
+        st.session_state.hw_info = "Searching..."
+else:
+    st.session_state.hw_info = "Offline"
+
 with st.sidebar:
     render_logo(size="medium", align="flex-start")
     
@@ -104,6 +115,30 @@ with st.sidebar:
 
     st.markdown("<div style='margin-bottom: 24px;'></div>", unsafe_allow_html=True)
 
+    # --- SYSTEM PULSE CARD ---
+    status_color = "#10b981" if st.session_state.backend_active else "#ef4444"
+    status_text = "Operational" if st.session_state.backend_active else "Offline"
+    hw_icon = "🚀" if "GPU" in st.session_state.hw_info else "⚙️"
+    
+    st.markdown(f"""
+    <div style="background: {THEMES[st.session_state.theme]['hover']}; padding: 12px; border-radius: 12px; border-left: 4px solid {status_color}; margin-bottom: 24px;">
+        <div style="font-size: 10px; font-weight: 800; color: {THEMES[st.session_state.theme]['muted']}; letter-spacing: 0.1em; margin-bottom: 4px;">SYSTEM PULSE</div>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-size: 13px; font-weight: 600;">Core Engine</span>
+            <span style="color: {status_color}; font-size: 11px; font-weight: 700;">● {status_text}</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px;">
+            <span style="font-size: 13px; font-weight: 600;">Hardware</span>
+            <span style="font-size: 11px; opacity: 0.8;">{hw_icon} {st.session_state.hw_info}</span>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    if not st.session_state.backend_active and not st.session_state.get("hide_backend_warning"):
+        if st.button("🔌 Reconnect Brain", use_container_width=True):
+            st.rerun()
+        st.markdown("---")
+    
     # Navigation
     st.markdown(f"<div style='font-size:14px; font-weight:600; color:{THEMES[st.session_state.theme]['muted']}; margin-bottom:12px;'>NAVIGATION</div>", unsafe_allow_html=True)
     
@@ -116,19 +151,6 @@ with st.sidebar:
     if 'current_page' not in st.session_state:
         st.session_state.current_page = "Dashboard"
         
-    if not st.session_state.backend_active and not st.session_state.get("hide_backend_warning"):
-        with st.container(border=True):
-            st.warning("⚠️ Cognitive Engine is offline.")
-            c1, c2 = st.columns(2)
-            with c1:
-                if st.button("🔄 Connect", use_container_width=True):
-                    st.rerun()
-            with c2:
-                if st.button("✖️ Dismiss", use_container_width=True):
-                    st.session_state.hide_backend_warning = True
-                    st.rerun()
-        st.markdown("---")
-    
     idx = nav_options.index(st.session_state.current_page) if st.session_state.current_page in nav_options else 0
     selected_page = st.radio("Menu", options=nav_options, index=idx, label_visibility="collapsed")
     
