@@ -16,8 +16,14 @@ if not os.path.exists(CACHE_DIR):
     os.makedirs(CACHE_DIR, exist_ok=True)
 
 # Initialize pygame mixer once
-if not pygame.mixer.get_init():
-    pygame.mixer.init()
+HAS_MIXER = False
+try:
+    if not pygame.mixer.get_init():
+        pygame.mixer.init()
+    HAS_MIXER = True
+except (pygame.error, Exception) as e:
+    print(f"[Voice] Mixer initialization failed: {e}")
+    HAS_MIXER = False
 
 # Global state
 is_speaking = False
@@ -53,6 +59,9 @@ def play_audio(text):
     Follows the requirement to be blocking.
     """
     global is_speaking
+    
+    if not HAS_MIXER:
+        return
     
     # Pre-processing
     safe_text = text.encode("ascii", "ignore").decode().strip()

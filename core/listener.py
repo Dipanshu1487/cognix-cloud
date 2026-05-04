@@ -1,5 +1,15 @@
-from faster_whisper import WhisperModel
-import sounddevice as sd
+try:
+    from faster_whisper import WhisperModel
+    HAS_WHISPER = True
+except ImportError:
+    HAS_WHISPER = False
+
+try:
+    import sounddevice as sd
+    HAS_SOUNDDEVICE = True
+except (ImportError, OSError):
+    HAS_SOUNDDEVICE = False
+
 import scipy.io.wavfile as wav
 import tempfile
 from core.voice import speak
@@ -13,6 +23,9 @@ _model = None
 def get_model():
     global _model
     if _model is None:
+        if not HAS_WHISPER:
+            print("[Voice] Faster-Whisper not available in this environment.")
+            return None
         _model = WhisperModel("base.en", device="cpu", compute_type="int8")
     return _model
 
@@ -121,6 +134,10 @@ def listen():
     Dynamic Listening: Records until silence is detected or max timeout reached.
     Optimized for slightly noisy environments.
     """
+    if not HAS_SOUNDDEVICE:
+        print("[Voice] Microphone not available in this environment.")
+        return ""
+        
     print("Listening...")
     try:
         fs = 16000  # sample rate
