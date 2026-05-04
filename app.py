@@ -66,6 +66,17 @@ if st.session_state.user is None:
 # 6. MAIN APPLICATION UI
 sis = get_sis(st.session_state.db_config)
 
+# Backend Health Monitor
+def check_backend():
+    import requests
+    try:
+        res = requests.get("http://127.0.0.1:8000/health", timeout=1)
+        return res.status_code == 200
+    except:
+        return False
+
+st.session_state.backend_active = check_backend()
+
 with st.sidebar:
     render_logo(size="medium", align="flex-start")
     
@@ -105,6 +116,12 @@ with st.sidebar:
     if 'current_page' not in st.session_state:
         st.session_state.current_page = "Dashboard"
         
+    if not st.session_state.backend_active:
+        st.warning("⚠️ Cognitive Engine (Backend) is offline. AI features are disabled.")
+        if st.button("🔄 Restart & Connect", use_container_width=True):
+            st.rerun()
+        st.markdown("---")
+    
     idx = nav_options.index(st.session_state.current_page) if st.session_state.current_page in nav_options else 0
     selected_page = st.radio("Menu", options=nav_options, index=idx, label_visibility="collapsed")
     

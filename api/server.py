@@ -41,6 +41,10 @@ class QueryRequest(BaseModel):
 class QueryResponse(BaseModel):
     response: str
 
+@app.get("/health")
+async def health_check():
+    return {"status": "online", "environment": sys.version}
+
 @app.post("/chat", response_model=QueryResponse)
 async def chat(request: QueryRequest):
     """
