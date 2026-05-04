@@ -66,14 +66,41 @@ if st.session_state.user is None:
 # 6. MAIN APPLICATION UI
 sis = get_sis(st.session_state.db_config)
 
-# Backend Health Monitor
+# Backend Health Monitor & Auto-Start
 def check_backend():
     import requests
+    import subprocess
+    import time
+    
+    url = "http://127.0.0.1:8000/health"
     try:
-        res = requests.get("http://127.0.0.1:8000/health", timeout=1)
-        return res.status_code == 200
+        res = requests.get(url, timeout=1)
+        if res.status_code == 200:
+            return True
     except:
-        return False
+        # Auto-Start Attempt
+        if st.session_state.get("auto_start_tried", False):
+            return False
+            
+        st.session_state.auto_start_tried = True
+        try:
+            # Detect environment
+            import sys
+            py_exe = sys.executable
+            env_312 = os.path.abspath("jarvis_env_312/Scripts/python.exe")
+            if os.path.exists(env_312):
+                py_exe = env_312
+                
+            # Launch in background
+            cmd = f'"{py_exe}" -m uvicorn api.server:app --host 0.0.0.0 --port 8000 --reload'
+            subprocess.Popen(cmd, shell=True, creationflags=subprocess.CREATE_NEW_CONSOLE if os.name == 'nt' else 0)
+            
+            # Wait a moment for port to open
+            time.sleep(2)
+            return False # Still return false initially, let the sidebar refresh catch it
+        except:
+            return False
+    return False
 
 st.session_state.backend_active = check_backend()
 
