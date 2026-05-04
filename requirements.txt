@@ -12,3 +12,4 @@ google-genai
 faster-whisper
 sounddevice
 pdfplumber
+scipy
