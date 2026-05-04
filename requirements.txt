@@ -10,4 +10,4 @@ plotly
 psycopg2-binary
 google-genai
 faster-whisper
-
+sounddevice
