@@ -72,11 +72,12 @@ def main():
             print("\n[ERROR] Brain failed to initialize in time. UI will start in restricted mode.")
 
         # Step 3: Start Streamlit UI
-        print("\n[SYSTEM] Launching Chat UI...")
-        ui_cmd = f'"{python_exe}" -m streamlit run app.py'
+        print("\n[SYSTEM] Launching Chat UI with Hot-Reloading...")
+        ui_cmd = f'"{python_exe}" -m streamlit run app.py --server.runOnSave true'
         ui_proc = subprocess.Popen(ui_cmd, shell=True)
         processes.append(ui_proc)
         print("[SYSTEM] UI running on http://localhost:8501")
+        print("[SYSTEM] HOT-RELOADING ACTIVE: Any code changes will reflect instantly!")
 
         # Monitor Processes
         while True:
