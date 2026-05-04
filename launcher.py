@@ -68,9 +68,15 @@ def main():
             print("[*] Launching cogniX Core Systems (kelly.py)...\n")
             time.sleep(0.5)
             
+            # Select correct executable (GPU prioritized)
+            target_python = sys.executable
+            if os.path.exists(r"jarvis_env_312\Scripts\python.exe"):
+                target_python = os.path.abspath(r"jarvis_env_312\Scripts\python.exe")
+                print(f"[*] GPU Environment detected: jarvis_env_312")
+            
             # Launch kelly.py safely
             try:
-                subprocess.run([sys.executable, "kelly.py"])
+                subprocess.run([target_python, "kelly.py"])
             except KeyboardInterrupt:
                 print("\n[!] System interrupted by user.")
             except Exception as e:

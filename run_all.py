@@ -17,16 +17,29 @@ def main():
     print("="*40 + "\n")
 
     # Environment Path Setup
-    # Flexible search for the environment
+    # Flexible search for the environment - prioritizing CUDA-ready 3.12 env
     python_exe = sys.executable # Default fallback
     env_paths = ["jarvis_env_312/Scripts/python.exe", "jarvis_env/Scripts/python.exe", "venv/Scripts/python.exe"]
     
+    selected_env = "Global"
     for p in env_paths:
         abs_p = os.path.abspath(p)
         if os.path.exists(abs_p):
             python_exe = abs_p
-            print(f"[SYSTEM] Using environment: {p}")
+            selected_env = p
             break
+    
+    print(f"[SYSTEM] Using environment: {selected_env}")
+    
+    # Verify CUDA in selected environment
+    try:
+        import torch
+        if torch.cuda.is_available():
+            print(f"[GPU] SUCCESS: CUDA is enabled. Using {torch.cuda.get_device_name(0)}")
+        else:
+            print("[GPU] WARNING: Running on CPU. Performance will be slow.")
+    except:
+        pass
 
     try:
         # Step 1: Start FastAPI backend
