@@ -13,34 +13,34 @@ class TopicRouter:
         conn = self._get_connection()
         cur = conn.cursor()
         
-        # Fetch Subtopics and their tags for keyword routing
-        cur.execute("SELECT id, name, tags FROM subtopics")
+        # Fetch Subtopics and their parent topic_ids for keyword routing
+        cur.execute("SELECT id, topic_id, name, tags FROM subtopics")
         subtopics = cur.fetchall()
         conn.close()
 
         query_lower = query.lower()
         
         # 1. Exact/Partial Match on Name or Tags
-        for sub_id, name, tags in subtopics:
+        for sub_id, top_id, name, tags in subtopics:
             # Check name
             if query_lower == name.lower() or name.lower() in query_lower:
-                return {"subtopic_id": sub_id, "name": name, "confidence": 1.0, "method": "keyword"}
+                return {"subtopic_id": sub_id, "topic_id": top_id, "name": name, "confidence": 1.0, "method": "keyword"}
             
             # Check tags
             if tags:
                 tag_list = [t.strip().lower() for t in tags.split(",")]
                 for tag in tag_list:
                     if tag in query_lower:
-                        return {"subtopic_id": sub_id, "name": name, "confidence": 0.9, "method": "tag_match"}
+                        return {"subtopic_id": sub_id, "topic_id": top_id, "name": name, "confidence": 0.9, "method": "tag_match"}
 
         # 2. Fuzzy Match
         best_match = None
         highest_ratio = 0
-        for sub_id, name, _ in subtopics:
+        for sub_id, top_id, name, _ in subtopics:
             ratio = difflib.SequenceMatcher(None, query_lower, name.lower()).ratio()
             if ratio > highest_ratio:
                 highest_ratio = ratio
-                best_match = {"subtopic_id": sub_id, "name": name}
+                best_match = {"subtopic_id": sub_id, "topic_id": top_id, "name": name}
         
         if highest_ratio > 0.6:
             return {**best_match, "confidence": round(highest_ratio, 2), "method": "fuzzy"}

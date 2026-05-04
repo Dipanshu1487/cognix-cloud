@@ -38,8 +38,18 @@ THEMES = {
 }
 
 ACCENTS = {
-    "blue":   "linear-gradient(135deg, #3B82F6 0%, #06B6D4 100%)",
-    "blue_solid": "#3B82F6",
+    "blue":    "linear-gradient(135deg, #3B82F6 0%, #06B6D4 100%)",
+    "violet":  "linear-gradient(135deg, #8B5CF6 0%, #D946EF 100%)",
+    "emerald": "linear-gradient(135deg, #10B981 0%, #34D399 100%)",
+    "sunset":  "linear-gradient(135deg, #F59E0B 0%, #EF4444 100%)",
+    "rose":    "linear-gradient(135deg, #F43F5E 0%, #FB7185 100%)",
+    
+    # Solid mappings for non-gradient elements
+    "blue_solid":    "#3B82F6",
+    "violet_solid":  "#8B5CF6",
+    "emerald_solid": "#10B981",
+    "sunset_solid":  "#F59E0B",
+    "rose_solid":    "#F43F5E",
 }
 
 SCALES = {
@@ -105,7 +115,37 @@ h3 {{
 }}
 
 /* ── Sidebar ──────────────────────────────────────────────────── */
-[data-testid="stSidebar"] {{ width: 400px !important; }}
+[data-testid="stSidebar"] {{ 
+    width: 400px !important; 
+    background-color: {t['sidebar']} !important;
+    border-right: 1px solid {t['border']} !important;
+}}
+
+/* Sidebar Content Protection */
+[data-testid="stSidebar"] [data-testid="stVerticalBlock"] {{
+    background-color: transparent !important;
+}}
+
+/* Radio / Navigation */
+[data-testid="stSidebar"] .stRadio label {{
+    color: {t['text']} !important;
+    font-weight: 500 !important;
+}}
+
+/* Radio Selection Dot Color */
+div[data-testid="stRadio"] label div[data-testid="stWidgetLabel"] + div div div:nth-child(1) {{
+    border-color: {a_solid} !important;
+}}
+
+div[data-testid="stRadio"] label div[data-testid="stWidgetLabel"] + div div div:nth-child(1) div {{
+    background-color: {a_solid} !important;
+}}
+
+/* Sidebar Selectbox Label */
+[data-testid="stSidebar"] .stSelectbox label, [data-testid="stSidebar"] .stExpander summary {{
+    color: {t['text']} !important;
+    font-weight: 600 !important;
+}}
 
 /* ── Cards ─────────────────────────────────────────────────────── */
 [data-testid="stVerticalBlock"] > [style*="flex-direction: column;"] > [data-testid="stVerticalBlock"] {{
@@ -121,10 +161,33 @@ h3 {{
     font-weight: 700 !important;
     font-size: 24px !important;
     padding: 1.2rem 2.5rem !important;
+    background-color: {t['card']} !important;
+    color: {t['text']} !important;
+    border: 1px solid {t['border']} !important;
+    transition: all 0.2s ease !important;
+}}
+
+.stButton>button:hover {{
+    background-color: {t['hover']} !important;
+    border-color: {a_solid} !important;
+    color: {a_solid} !important;
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.2) !important;
+}}
+
+/* Primary Buttons */
+.stButton>button[kind="primary"] {{
+    background: {a_grad} !important;
+    color: white !important;
+    border: none !important;
+}}
+
+/* ── Progress Bars ─────────────────────────────────────────────── */
+div[data-testid="stProgress"] > div > div > div > div {{
+    background: {a_grad} !important;
 }}
 
 /* ── Metrics ───────────────────────────────────────────────────── */
-[data-testid="stMetricValue"] {{ font-size: 56px !important; font-weight: 800 !important; }}
+[data-testid="stMetricValue"] {{ font-size: 56px !important; font-weight: 800 !important; color: {t['text']} !important; }}
 
 /* ── Tabs (Subjects) ───────────────────────────────────────────── */
 div[data-baseweb="tab-list"] {{
@@ -135,10 +198,15 @@ div[data-baseweb="tab-list"] {{
 div[data-baseweb="tab"] {{
     padding: 16px 32px !important;
     margin-right: 20px !important;
+    color: {t['muted']} !important;
+}}
+
+div[data-baseweb="tab"][aria-selected="true"] {{
+    color: {a_solid} !important;
+    border-bottom-color: {a_solid} !important;
 }}
 
 /* ── FIX FOR OVERLAPPING / ICON TEXT LEAKAGE ───────────────────── */
-/* Hide text ligatures that Streamlit sometimes leaks when font-size is forced on icon containers */
 [data-testid="stExpander"] summary span,
 [data-testid="stPopover"] button span,
 [data-testid="stBaseButton-secondary"] span,
@@ -149,23 +217,16 @@ div[data-baseweb="tab"] {{
     white-space: nowrap !important;
 }}
 
-/* Ensure SVGs maintain their own scale and don't show text fallbacks */
-svg, [data-testid="stIconMaterial"] {{
-    min-width: 24px !important;
-    min-height: 24px !important;
-    display: inline-block !important;
-}}
-
-/* Specifically target the expander arrow to prevent text leakage */
-[data-testid="stExpander"] [data-testid="stMarkdownContainer"] {{
-    font-size: {s['fs']} !important;
-}}
-
 /* ── Header Gradient Fix ───────────────────────────────────────── */
 h1#welcome-to-cognix {{
     background: {a_grad};
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+}}
+
+/* Ensure all markdown text respects theme color */
+.stMarkdown div p {{
+    color: {t['text']} !important;
 }}
 
 </style>"""

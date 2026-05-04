@@ -10,6 +10,7 @@ import sys
 from difflib import get_close_matches
 from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 from peft import PeftModel
+from core.normalizer import normalize_query
 
 
 # --- LoRA Engine Configuration ---
@@ -264,7 +265,8 @@ def assign_quality_score(response, user_input):
     if not resp[0].isupper():
          return "BAD", "Does not start with capital letter / broken grammar"
          
-    if len(sentences) < 2 and "Example:" not in resp:
+    sentences = [s for s in resp.split(".") if len(s.strip()) > 0]
+    if len(sentences) < 1 and "Example:" not in resp:
          return "WEAK", "Shallow response / lacks structure"
 
     # 3. Meaningless / Fragmented / Drift
@@ -300,29 +302,6 @@ def assign_quality_score(response, user_input):
     
     return "WEAK", "Passable but requires fallback for depth"
 
-def validate_response(response, query):
-    """
-    Validation Layer (Guardrail)
-    Rejects response based on strict criteria.
-    """
-    if not response or len(response.split()) < 4:
-        return False, "Too short or empty"
-    
-    l_resp = response.lower()
-    
-    # 1. Hallucination Phrases
-    hallucination_phrases = ["thank you for watching", "subscribe", "like and share", "as an ai", "i am a language model"]
-    if any(phrase in l_resp for phrase in hallucination_phrases):
-        return False, "Contains hallucination phrases"
-    
-    # 2. Keyword Overlap Check (Basic relevance)
-    query_keywords = [w for w in query.lower().split() if len(w) > 3]
-    if query_keywords:
-        overlap = any(kw in l_resp for kw in query_keywords)
-        if not overlap:
-            return False, "No keyword overlap with user query"
-            
-    return True, "Valid"
 
 
 def is_academic_query(command):
@@ -550,8 +529,10 @@ def ask_local_conversation(command):
     Brain v2 Main Pipeline: Intent -> Retrieval/Math -> Model -> Validation
     """
     global conversation_history
-    query = command.strip()
-    print("USER:", query)
+    raw_query = command.strip()
+    query = normalize_query(raw_query)
+    print("USER (Raw):", raw_query)
+    print("USER (Normalized):", query)
 
     # 1. INTENT DETECTION
     intent = detect_intent(query)
@@ -583,11 +564,9 @@ def ask_local_conversation(command):
     safe_fallback = "I don't know the answer to that yet."
     generated_raw = None
 
-    # Try Academic LoRA first for knowledge/general if applicable
-    if (intent in ["knowledge", "general"]) and lora_available:
+    # Try Academic LoRA first ONLY if it's a technical academic query
+    if (intent in ["knowledge", "general"]) and lora_available and is_academic_query(query):
         # LoRA engine expects specific format, adapting contextual_query
-        # Here we use the existing ask_lora_brain but pass the query
-        # In a real v2 we might want to pass context to LoRA too
         generated_raw = ask_lora_brain(query) 
         if generated_raw:
              print("MODEL RAW (LoRA):", generated_raw)

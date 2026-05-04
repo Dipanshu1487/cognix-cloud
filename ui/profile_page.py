@@ -6,6 +6,9 @@ import os
 import smtplib
 from email.mime.text import MIMEText
 import bcrypt
+import base64
+from PIL import Image
+import io
 
 def send_otp(receiver_email, otp):
     EMAIL = st.secrets.get("GMAIL_USER") or os.getenv("GMAIL_USER")
@@ -21,6 +24,11 @@ def send_otp(receiver_email, otp):
             server.send_message(msg)
         return True
     except: return False
+    
+def get_base64_image(file_path):
+    with open(file_path, "rb") as f:
+        data = f.read()
+    return base64.b64encode(data).decode()
 
 def render_profile_page():
     # Force fresh user data at start of every render
@@ -36,8 +44,38 @@ def render_profile_page():
     with st.container(border=True):
         c1, c2 = st.columns([1, 2])
         with c1:
-            initial = u['name'][0].upper() if u['name'] else "?"
-            st.markdown(f"<div style='background:{t['accent']}; color:white; width:120px; height:120px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:48px; font-weight:800;'>{initial}</div>", unsafe_allow_html=True)
+            photo_path = u.get('profile_photo')
+            if photo_path and os.path.exists(photo_path):
+                try:
+                    b64 = get_base64_image(photo_path)
+                    st.markdown(f"<div style='width:120px; height:120px; border-radius:50%; overflow:hidden; border:3px solid {t['accent']};'><img src='data:image/png;base64,{b64}' style='width:100%; height:100%; object-fit:cover;'></div>", unsafe_allow_html=True)
+                except:
+                    initial = u['name'][0].upper() if u['name'] else "?"
+                    st.markdown(f"<div style='background:{t['accent']}; color:white; width:120px; height:120px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:48px; font-weight:800;'>{initial}</div>", unsafe_allow_html=True)
+            else:
+                initial = u['name'][0].upper() if u['name'] else "?"
+                st.markdown(f"<div style='background:{t['accent']}; color:white; width:120px; height:120px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:48px; font-weight:800;'>{initial}</div>", unsafe_allow_html=True)
+            
+            st.write("")
+            uploaded_file = st.file_uploader("Change Photo", type=["jpg", "png", "jpeg"], label_visibility="collapsed", key="profile_photo_uploader")
+            if uploaded_file:
+                # Save photo
+                os.makedirs("uploads/profiles", exist_ok=True)
+                ext = uploaded_file.name.split(".")[-1]
+                path = f"uploads/profiles/user_{u['id']}.{ext}"
+                with open(path, "wb") as f:
+                    f.write(uploaded_file.getbuffer())
+                db.update_profile_photo(u['id'], path)
+                st.success("Photo updated!")
+                st.rerun()
+            
+            if photo_path:
+                if st.button("🗑️ Remove Photo", use_container_width=True):
+                    db.remove_profile_photo(u['id'])
+                    if os.path.exists(photo_path):
+                        try: os.remove(photo_path)
+                        except: pass
+                    st.rerun()
         
         with c2:
             st.subheader("Edit Account Info")

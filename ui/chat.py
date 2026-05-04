@@ -2,6 +2,7 @@ import streamlit as st
 import requests
 import time
 import pandas as pd
+import os
 
 try:
     import plotly.express as px
@@ -13,251 +14,110 @@ except ImportError:
 from core.listener import listen
 import core.voice as voice
 from memory.student_intelligence import StudentIntelligenceSystem
+import upload.db as db
 
 @st.cache_resource
 def get_sis(db_config):
     return StudentIntelligenceSystem(db_config)
 
-st.set_page_config(page_title="cogniX OS", page_icon="🤖", layout="wide", initial_sidebar_state="expanded")
-
-state_defaults = {
-    "db_config": {"dbname": "cognix_db", "user": "postgres", "password": "yourpassword", "host": "localhost"},
-    "messages": [],
-    "theme": "light",
-    "accent": "blue",
-    "scale": "medium",
-    "chat_style": "comfortable",
-    "voice_enabled": True,
-    "auto_send": False,
-    "selected_topic": None,
-    "selected_subject": None,
-    "selected_chapter": None,
-}
-
-for k, v in state_defaults.items():
-    if k not in st.session_state:
-        st.session_state[k] = v
-
-sis = get_sis(st.session_state.db_config)
-
-theme_map = {
-    "dark": {"bg": "#020617", "card": "#0f172a", "text": "#f8fafc", "muted": "#94a3b8", "border": "#1e293b", "sidebar": "#020617"},
-    "grey": {"bg": "#1f2937", "card": "#374151", "text": "#f3f4f6", "muted": "#9ca3af", "border": "#4b5563", "sidebar": "#111827"},
-    "light": {"bg": "#ffffff", "card": "#f8fafc", "text": "#0f172a", "muted": "#64748b", "border": "#e2e8f0", "sidebar": "#f1f5f9"}
-}
-accent_map = {
-    "blue": "#3b82f6", "purple": "#a855f7", "green": "#22c55e"
-}
-scale_map = {
-    "small": {"fs": "14px", "pad": "10px", "mw": "800px", "bubble_fs": "0.9em"},
-    "medium": {"fs": "16px", "pad": "20px", "mw": "1100px", "bubble_fs": "1em"},
-    "large": {"fs": "18px", "pad": "30px", "mw": "1400px", "bubble_fs": "1.1em"}
-}
-chat_style_map = {
-    "compact": {"bubble_p": "8px 12px", "gap": "8px"},
-    "comfortable": {"bubble_p": "16px 24px", "gap": "20px"}
-}
-
-t = theme_map[st.session_state.theme]
-a = accent_map[st.session_state.accent]
-s = scale_map[st.session_state.scale]
-cs = chat_style_map[st.session_state.chat_style]
-
-css = f"""
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-html, body, [class*="css"] {{
-    font-family: 'Inter', sans-serif;
-    color: {t['text']} !important;
-    font-size: {s['fs']} !important;
-}}
-.stApp {{
-    background-color: {t['bg']};
-}}
-[data-testid="stSidebar"] {{
-    background-color: {t['sidebar']} !important;
-    border-right: 1px solid {t['border']} !important;
-}}
-.block-container {{
-    max-width: {s['mw']} !important;
-    margin: 0 auto !important;
-    padding-top: 1rem !important;
-    padding-right: 1.5rem !important;
-    padding-left: 1.5rem !important;
-    padding-bottom: 2rem !important;
-}}
-.os-card {{
-    background-color: {t['card']};
-    border-radius: 12px;
-    padding: {s['pad']};
-    border: 1px solid {t['border']};
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}}
-.os-card:hover {{
-    transform: translateY(-2px);
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-}}
-.txt-main {{ color: {t['text']}; font-weight: 700; }}
-.txt-muted {{ color: {t['muted']}; font-weight: 500; font-size: 0.9em; }}
-.txt-accent {{ color: {a}; font-weight: 700; }}
-.stChatMessage {{ background-color: transparent !important; border: none !important; margin-bottom: {cs['gap']} !important; padding: 0 !important; }}
-.chat-row {{ display: flex; width: 100%; }}
-.chat-row.user {{ justify-content: flex-end; }}
-.chat-row.assistant {{ justify-content: flex-start; }}
-.chat-bubble {{
-    padding: {cs['bubble_p']};
-    border-radius: 12px;
-    max-width: 80%;
-    font-size: {s['bubble_fs']};
-    line-height: 1.6;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-}}
-.chat-bubble.user {{
-    background-color: {a};
-    color: #0b1220;
-    border-bottom-right-radius: 2px;
-    font-weight: 500;
-}}
-.chat-bubble.assistant {{
-    background-color: {t['card']};
-    color: {t['text']};
-    border: 1px solid {t['border']};
-    border-bottom-left-radius: 2px;
-}}
-div[data-testid="stChatInput"] {{
-    background-color: {t['card']} !important;
-    border: 1px solid {t['border']} !important;
-    border-radius: 12px !important;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.2) !important;
-}}
-div[data-testid="stSelectbox"] > div[data-baseweb="select"] > div {{
-    background-color: {t['card']} !important;
-    border-color: {t['border']} !important;
-    color: {t['text']} !important;
-}}
-.stButton>button {{
-    background-color: {t['card']};
-    color: {t['text']};
-    border: 1px solid {t['border']};
-    border-radius: 8px;
-    font-weight: 500;
-    transition: all 0.2s ease;
-}}
-.stButton>button:hover {{
-    border-color: {a};
-    color: {a};
-}}
-.focus-bar {{
-    background-color: {t['card']};
-    border-radius: 16px;
-    padding: 15px 25px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-left: 6px solid {a};
-    margin-bottom: 30px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-}}
-.topic-card {{
-    background-color: {t['card']};
-    border-radius: 16px;
-    padding: 24px;
-    border: 1px solid {t['border']};
-    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    position: relative;
-    overflow: hidden;
-}}
-.topic-card:hover {{
-    transform: translateY(-8px) scale(1.02);
-    box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2);
-    border-color: {a}88;
-}}
-.topic-card.active {{
-    border: 2px solid {a} !important;
-    box-shadow: 0 0 25px {a}44 !important;
-}}
-.badge {{
-    padding: 4px 12px;
-    border-radius: 8px;
-    font-size: 0.75em;
-    font-weight: 700;
-    text-transform: uppercase;
-}}
-.badge-weak {{ background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid #ef444433; }}
-.badge-intermediate {{ background: rgba(234, 179, 8, 0.1); color: #eab308; border: 1px solid #eab30833; }}
-.badge-strong {{ background: rgba(34, 197, 94, 0.1); color: #22c55e; border: 1px solid #22c55e33; }}
-.stop-btn>button {{
-    background-color: rgba(239, 68, 68, 0.1) !important;
-    color: #ef4444 !important;
-    border: 1px solid #ef4444 !important;
-}}
-.stop-btn>button:hover {{ background-color: #ef4444 !important; color: white !important; }}
-.status-dot {{ width: 8px; height: 8px; background-color: #4ade80; border-radius: 50%; display: inline-block; margin-right: 6px; }}
-</style>
-"""
-st.markdown(css, unsafe_allow_html=True)
-
-tb1, tb2, tb3 = st.columns([1.5, 2, 1.5])
-with tb1:
-    st.markdown(f'<div style="font-size: 1.4em; font-weight: 700; display:flex; align-items:center;">🤖 <span style="color:{a}; margin-left:8px;">cogniX OS</span></div>', unsafe_allow_html=True)
-with tb3:
-    st.markdown(f'<div style="text-align: right; margin-top: 5px; font-weight: 500; font-size: 0.9em; color:{t["muted"]};"><div class="status-dot"></div>System Online</div>', unsafe_allow_html=True)
-
-st.markdown(f"<hr style='border: 1px solid {t['border']}; margin: 15px 0 25px 0;'>", unsafe_allow_html=True)
-
-with st.sidebar:
-    st.markdown(f'<div style="color: {t["muted"]}; font-weight: 600; font-size: 0.85em; letter-spacing: 0.05em; margin-bottom: 20px; text-transform:uppercase;">Navigation</div>', unsafe_allow_html=True)
-    page = st.radio("", ["Dashboard", "Chat", "Subjects", "Practice", "Analytics"], label_visibility="collapsed", key="page_nav")
-    
-    st.markdown("<br><br>", unsafe_allow_html=True)
-    with st.expander("⚙️ System Settings", expanded=False):
-        st.session_state.theme = st.selectbox("UI Theme", ["dark", "grey", "light"], index=["dark", "grey", "light"].index(st.session_state.theme))
-        st.session_state.accent = st.selectbox("Accent Color", ["blue", "purple", "green"], index=["blue", "purple", "green"].index(st.session_state.accent))
-        st.session_state.scale = st.selectbox("Interface Scale", ["small", "medium", "large"], index=["small", "medium", "large"].index(st.session_state.scale))
-        st.session_state.chat_style = st.selectbox("Chat Style", ["compact", "comfortable"], index=["compact", "comfortable"].index(st.session_state.chat_style))
-        
-        st.markdown(f"<hr style='border: 1px solid {t['border']}; margin: 15px 0;'>", unsafe_allow_html=True)
-        
-        st.session_state.voice_enabled = st.toggle("Voice Output", value=st.session_state.voice_enabled)
-        st.session_state.auto_send = st.toggle("Auto Send Voice", value=st.session_state.auto_send)
-
 def process_query(query_text):
+    sis = get_sis(st.session_state.db_config)
     active_topic_id = st.session_state.get("active_topic")
     topic_context = ""
     
-    # Topic Detection
-    detection = sis.process_chat_interaction(query_text)
-    if detection:
-        topic_details = sis.get_topic_details(detection['topic_id'])
-        topic_context = f"\nTopic: {topic_details['name']}\nContext: {topic_details['description']}"
-    elif active_topic_id:
-        topic_details = sis.get_topic_details(active_topic_id)
-        topic_context = f"\nTopic: {topic_details['name']}\nContext: {topic_details['description']}"
+    # Vague Follow-up Detection
+    vague_followups = ["explain", "example", "why", "elaborate", "how", "more", "detail", "definition"]
+    is_followup = len(query_text.split()) < 5 and any(f in query_text.lower() for f in vague_followups)
+    
+    # Classification (Simple check for now)
+    is_general = False # Default to academic for better context
+    
+    # Topic Detection (Only for academic queries)
+    detection = None
+    if not is_general:
+        detection = sis.process_chat_interaction(st.session_state.user['id'], query_text)
+        if detection and isinstance(detection, dict):
+            tid = detection.get('topic_id')
+            if tid:
+                topic_details = sis.get_topic_details(tid)
+                if topic_details:
+                    topic_context = f"\nFocused Topic: {topic_details.get('name')}\nTopic Details: {topic_details.get('description')}"
+                    st.session_state.last_academic_topic = topic_details.get('name')
+        elif active_topic_id:
+            topic_details = sis.get_topic_details(active_topic_id)
+            if topic_details:
+                topic_context = f"\nCurrently Studying: {topic_details.get('name')}\nTopic Context: {topic_details.get('description')}"
+                st.session_state.last_academic_topic = topic_details.get('name')
 
-    full_query = f"You are an academic assistant. {topic_context}\n\nUser: {query_text}"
+    if is_general:
+        full_query = f"The user is asking a general knowledge question. Please answer normally.\n\nUser: {query_text}"
+    elif is_followup and st.session_state.get("last_academic_topic"):
+        last_topic = st.session_state.get("last_academic_topic")
+        full_query = f"Previous topic: {last_topic}\nUser query: {query_text}\n\nSince this query is a follow-up, refer to the previous topic '{last_topic}' and provide a detailed academic response."
+    else:
+        full_query = f"You are an academic assistant. {topic_context}\n\nUser: {query_text}"
 
+    if "messages" not in st.session_state:
+        st.session_state.messages = []
+        
     st.session_state.messages.append({"role": "You", "content": query_text})
+    st.session_state.is_thinking = True
+    st.rerun()
+
+def get_response(query_text):
+    sis = get_sis(st.session_state.db_config)
+    active_topic_id = st.session_state.get("active_topic")
+    topic_context = ""
+    
+    # Vague Follow-up Detection
+    vague_followups = ["explain", "example", "why", "elaborate", "how", "more", "detail", "definition"]
+    is_followup = len(query_text.split()) < 5 and any(f in query_text.lower() for f in vague_followups)
+    # Classification
+    is_general = False
+    
+    detection = None
+    if not is_general:
+        detection = sis.process_chat_interaction(st.session_state.user['id'], query_text)
+        if detection and isinstance(detection, dict):
+            tid = detection.get('topic_id')
+            if tid:
+                topic_details = sis.get_topic_details(tid)
+                if topic_details:
+                    topic_context = f"\nFocused Topic: {topic_details.get('name')}\nTopic Details: {topic_details.get('description')}"
+                    st.session_state.last_academic_topic = topic_details.get('name')
+        elif active_topic_id:
+            topic_details = sis.get_topic_details(active_topic_id)
+            if topic_details:
+                topic_context = f"\nCurrently Studying: {topic_details.get('name')}\nTopic Context: {topic_details.get('description')}"
+                st.session_state.last_academic_topic = topic_details.get('name')
+
+    if is_general:
+        full_query = f"The user is asking a general knowledge question. Please answer normally.\n\nUser: {query_text}"
+    elif is_followup and st.session_state.get("last_academic_topic"):
+        last_topic = st.session_state.get("last_academic_topic")
+        full_query = f"Previous topic: {last_topic}\nUser query: {query_text}\n\nSince this query is a follow-up, refer to the previous topic '{last_topic}' and provide a detailed academic response."
+    else:
+        full_query = f"You are an academic assistant. {topic_context}\n\nUser: {query_text}"
     
     try:
         response = requests.post("http://127.0.0.1:8000/chat", json={"query": full_query}, timeout=30)
         jarvis_response = response.json().get("response", "No response received.") if response.status_code == 200 else f"Error: {response.status_code}"
     except:
-        jarvis_response = "Error connecting to backend."
+        jarvis_response = "Error connecting to backend. Please ensure the cognitive engine is running."
 
     tracking_data = {"logged": False}
-    if detection:
+    if detection and isinstance(detection, dict):
         tracking_data = {
             "logged": True,
-            "topic_name": topic_details['name'],
-            "confidence": detection['confidence'],
-            "method": detection['method']
+            "topic_name": detection.get('name', 'Unknown'),
+            "confidence": detection.get('confidence', 0),
+            "method": detection.get('method', 'N/A')
         }
 
     st.session_state.messages.append({"role": "cogniX", "content": jarvis_response, "tracking": tracking_data})
+    st.session_state.is_thinking = False
     
-    if st.session_state.voice_enabled:
+    if st.session_state.get("voice_enabled", False):
         voice.stop_speaking()
         voice.speak_async(jarvis_response)
     
@@ -269,15 +129,95 @@ def handle_mic():
         process_query(txt)
 
 def render_chat():
+    sis = get_sis(st.session_state.db_config)
+    from ui.styles import THEMES, ACCENTS
+    
+    t = THEMES.get(st.session_state.theme, THEMES["light"])
+    a = ACCENTS.get(st.session_state.accent, "#3b82f6")
+    
+    # Custom Chat Styles (Injecting locally to avoid conflicts)
+    chat_css = f"""
+    <style>
+    .chat-bubble {{
+        padding: 12px 18px;
+        border-radius: 12px;
+        max-width: 85%;
+        margin-bottom: 10px;
+        line-height: 1.5;
+    }}
+    .chat-bubble.user {{
+        background-color: {a};
+        color: {'white' if st.session_state.theme == 'dark' else '#0b1220'};
+        margin-left: auto;
+        border-bottom-right-radius: 2px;
+        box-shadow: 0 4px 15px {a}33;
+        font-weight: 500;
+    }}
+    .chat-bubble.assistant {{
+        background-color: {t['hover']};
+        color: {t['text']};
+        margin-right: auto;
+        border: 1px solid {t['border']};
+        border-bottom-left-radius: 2px;
+    }}
+    .chat-container {{
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }}
+    .chat-row {{
+        display: flex;
+        width: 100%;
+    }}
+    .chat-row.user {{
+        justify-content: flex-end;
+    }}
+    .chat-row.assistant {{
+        justify-content: flex-start;
+    }}
+    .typing-dot {{
+        height: 8px;
+        width: 8px;
+        background-color: {a};
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 3px;
+        animation: typing 1s infinite ease-in-out;
+    }}
+    @keyframes typing {{
+        0%, 100% {{ transform: translateY(0); }}
+        50% {{ transform: translateY(-5px); }}
+    }}
+    </style>
+    """
+    st.markdown(chat_css, unsafe_allow_html=True)
+
+    # Top Header and Menu
+    h_col1, h_col2 = st.columns([0.9, 0.1])
+    with h_col1:
+        st.header("🤖 cogniX Intelligent Chat")
+    with h_col2:
+        with st.popover("⋮", help="Chat Settings"):
+            st.markdown("### Chat Settings")
+            st.session_state.voice_enabled = st.toggle("Voice Response", value=st.session_state.get("voice_enabled", False))
+            if st.button("🗑️ Clear History", use_container_width=True):
+                st.session_state.messages = []
+                st.rerun()
+    
     active_topic_id = st.session_state.get("active_topic")
     if active_topic_id:
         topic_name = sis.get_topic_name(active_topic_id)
-        st.info(f"🎯 Currently Studying: {topic_name}")
+        st.info(f"🎯 Currently Focused on: **{topic_name}**")
     
-    st.markdown('<h2 class="txt-main" style="margin-bottom: 20px;">Chat Interface</h2>', unsafe_allow_html=True)
-    
-    chat_container = st.container(height=500, border=False)
+    if "messages" not in st.session_state:
+        st.session_state.messages = []
+
+    # Chat Container
+    chat_container = st.container(height=500, border=True)
     with chat_container:
+        st.markdown('<div class="chat-container">', unsafe_allow_html=True)
+        if not st.session_state.messages:
+            st.info("Ask anything about your studies or current topic.")
         for msg in st.session_state.messages:
             if msg["role"] == "You":
                 st.markdown(f'<div class="chat-row user"><div class="chat-bubble user">{msg["content"]}</div></div>', unsafe_allow_html=True)
@@ -286,43 +226,46 @@ def render_chat():
                 track_html = ""
                 if track.get("logged"):
                     track_html = f"""
-                    <div style="margin-top: 10px; padding: 5px; border-left: 2px solid {a}; font-size: 0.8em; color: {t['muted']};">
-                        Detected: {track['topic_name']} ({track['method']} | {track['confidence']})
+                    <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid {t['border']}; font-size: 0.8em; color: {t['muted']};">
+                        📍 Auto-detected Topic: {track['topic_name']}
                     </div>
                     """
                 st.markdown(f'<div class="chat-row assistant"><div class="chat-bubble assistant">{msg["content"]}{track_html}</div></div>', unsafe_allow_html=True)
+        
+        if st.session_state.get("is_thinking"):
+            st.markdown(f'<div class="chat-row assistant"><div class="chat-bubble assistant"><div class="typing-dot"></div><div class="typing-dot" style="animation-delay:0.2s"></div><div class="typing-dot" style="animation-delay:0.4s"></div></div></div>', unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
 
-    ctrl1, ctrl2, _ = st.columns([0.15, 0.15, 0.70])
-    with ctrl1:
-        if st.button("🎤 Speak", use_container_width=True):
+    # Trigger response if thinking
+    if st.session_state.get("is_thinking") and st.session_state.messages:
+        last_msg = st.session_state.messages[-1]
+        if last_msg["role"] == "You":
+            get_response(last_msg["content"])
+    c1, c2, c3 = st.columns([0.8, 0.1, 0.1])
+    with c1:
+        prompt = st.chat_input("How can I help you study today?")
+        if prompt:
+            process_query(prompt)
+    
+    with c2:
+        if st.button("🎤", use_container_width=True, help="Voice Input"):
             with st.spinner("Listening..."):
                 handle_mic()
     
-    with ctrl2:
-        if voice.is_speaking:
-            if st.button("🔴 Stop", use_container_width=True):
-                voice.stop_speaking()
-                st.rerun()
+    with c3:
+        with st.popover("📎", help="Attach File/Photo"):
+            att_file = st.file_uploader("Upload Image or Doc", type=["jpg", "png", "jpeg", "pdf", "txt"])
+            if att_file:
+                st.info(f"Attached: {att_file.name}")
+                if st.button("Analyze Attachment", use_container_width=True):
+                    # Placeholder for analysis logic
+                    st.session_state.messages.append({"role": "You", "content": f"[Attached File: {att_file.name}]"})
+                    st.session_state.messages.append({"role": "cogniX", "content": f"I've received your file: {att_file.name}. I'm analyzing its content to help you better."})
+                    st.rerun()
 
-    prompt = st.chat_input("Ask a question about your syllabus...")
-    if prompt:
-        process_query(prompt)
-
-def render_dashboard():
-    st.markdown(f'<h1 class="txt-main" style="margin-bottom:0; font-size: 2.2em;">Welcome back</h1>', unsafe_allow_html=True)
-    st.markdown(f'<p class="txt-muted" style="margin-bottom:30px; font-size:1.05em;">System operational. Your neural pathway optimization is standing by.</p>', unsafe_allow_html=True)
-
-    c1, c2, c3, c4 = st.columns(4)
-    for col, title, val, emj in zip([c1,c2,c3,c4], ["Topics", "Accuracy", "Weak", "Study Time"], ["-", "-", "-", "-"], ["📚", "🎯", "⚠️", "⏱️"]):
-        with col:
-            st.markdown(f'<div class="os-card"><span style="margin-right:8px;">{emj}</span><span class="txt-muted">{title}</span><div style="font-size:2em; font-weight:700; color:{t["text"]}; margin-top:8px;">{val}</div></div>', unsafe_allow_html=True)
-
-from ui.subjects import render_subjects as render_subjects_module
-
-def render_subjects():
-    render_subjects_module(sis)
-
-if page == "Dashboard": render_dashboard()
-elif page == "Chat": render_chat()
-elif page == "Subjects": render_subjects()
-else: st.markdown(f'<h2 class="txt-muted" style="text-align:center; margin-top:100px;">[{page} Module Offline]</h2>', unsafe_allow_html=True)
+if __name__ == "__main__":
+    # If run standalone for testing
+    st.set_page_config(page_title="cogniX Chat Test")
+    if "db_config" not in st.session_state:
+        st.session_state.db_config = {"dbname": "cognix_db", "user": "postgres", "password": "", "host": "localhost", "use_sqlite": True}
+    render_chat()

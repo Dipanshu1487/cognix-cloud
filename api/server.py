@@ -51,11 +51,13 @@ async def chat(request: QueryRequest):
     try:
         # Process the query using the existing unified pipeline
         answer = process_query(request.query)
+        logger.info(f"Brain Result: {answer}")
         
         if not answer:
+            logger.warning("Brain returned empty/None result.")
             return QueryResponse(response="I encountered an issue processing that request, sir.")
             
-        return QueryResponse(response=answer)
+        return QueryResponse(response=str(answer))
         
     except Exception as e:
         logger.error(f"API Error: {e}")
