@@ -36,9 +36,27 @@ def main():
         processes.append(backend_proc)
         print("[SYSTEM] Backend initializing...")
 
-        # Step 2: Wait for Model stabilization
-        print("[SYSTEM] Loading Academic Brain (LoRA)... please hold...")
-        time.sleep(8)
+        # Step 2: Smart Wait for Backend (Polling /health)
+        print("[SYSTEM] Initializing Academic Brain (LoRA)...")
+        import requests
+        max_retries = 30 # 30 retries * 2s = 60 seconds max wait
+        backend_online = False
+        
+        for i in range(max_retries):
+            try:
+                res = requests.get("http://127.0.0.1:8000/health", timeout=1)
+                if res.status_code == 200:
+                    print(f"\n[SYSTEM] Brain Online! (Verified in {i*2}s)")
+                    backend_online = True
+                    break
+            except:
+                pass
+            
+            print(".", end="", flush=True) # Progress dots
+            time.sleep(2)
+            
+        if not backend_online:
+            print("\n[ERROR] Brain failed to initialize in time. UI will start in restricted mode.")
 
         # Step 3: Start Streamlit UI
         print("\n[SYSTEM] Launching Chat UI...")
