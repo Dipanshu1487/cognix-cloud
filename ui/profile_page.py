@@ -79,8 +79,8 @@ def render_profile_page():
         
         with c2:
             st.subheader("Edit Account Info")
-            new_name = st.text_input("Name", value=u['name'], key="prof_name_input", on_change=st.rerun)
-            new_email = st.text_input("Email", value=u.get('email') or "", key="prof_email_input", on_change=st.rerun)
+            new_name = st.text_input("Name", value=u['name'], key="prof_name_input")
+            new_email = st.text_input("Email", value=u.get('email') or "", key="prof_email_input")
             
             # Robust email change detection
             current_email = (u.get('email') or "").strip().lower()
