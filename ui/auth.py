@@ -94,10 +94,38 @@ def render_login_signup():
                         cur.execute("SELECT * FROM users WHERE username = %s", (l_user,))
                         user_row = cur.fetchone()
                         
+                        print("[AUTH DEBUG] USER FETCHED:", user_row)
+
+                        if not user_row:
+                            print("[AUTH DEBUG] No user found")
+                        else:
+                            print("[AUTH DEBUG] Username from DB:", user_row["username"])
+
+                            stored_hash = user_row["password"]
+
+                            print("[AUTH DEBUG] Hash type:", type(stored_hash))
+
+                            if isinstance(stored_hash, memoryview):
+                                stored_hash = stored_hash.tobytes().decode("utf-8")
+
+                            print("[AUTH DEBUG] Final hash:", stored_hash)
+
+                            password_match = bcrypt.checkpw(
+                                l_pass.encode("utf-8"),
+                                stored_hash.encode("utf-8")
+                            )
+
+                            print("[AUTH DEBUG] Password Match:", password_match)
+
+                            if password_match:
+                                print("[AUTH DEBUG] PASSWORD VERIFIED SUCCESSFULLY")
+                            else:
+                                print("[AUTH DEBUG] PASSWORD VERIFICATION FAILED")
+                        
                         valid = False
                         if user_row:
                             try:
-                                if bcrypt.checkpw(l_pass.encode('utf-8'), user_row['password'].tobytes() if isinstance(user_row['password'], memoryview) else user_row['password'].encode('utf-8') if isinstance(user_row['password'], str) else user_row['password']):
+                                if bcrypt.checkpw(l_pass.encode('utf-8'), user_row['password'].tobytes() if isinstance(user_row['password'], memoryview) else user_row['password'].encode('utf-8') [...]
                                     if sel == 'admin':
                                         if user_row['role'] in ['admin', 'super_admin']:
                                             valid = True
