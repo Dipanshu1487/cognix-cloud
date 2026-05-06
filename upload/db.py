@@ -538,7 +538,7 @@ def get_subject_completion_stats(user_id):
         LEFT JOIN units u ON s.id = u.subject_id
         LEFT JOIN sections sec ON u.id = sec.unit_id
         LEFT JOIN topics t ON sec.id = t.section_id
-        LEFT JOIN progress p ON t.id = p.topic_id AND p.user_id = %s
+        LEFT JOIN progress p ON t.name = p.topic AND p.user_id = %s
         GROUP BY s.id, s.name
     """, (user_id,))
     res = cur.fetchall()
