@@ -328,16 +328,6 @@ def get_subject_completion_stats(user_id):
     return res
 
 def init_db():
-    conn = sqlite3.connect(DB_PATH)
-    cur = conn.cursor()
-    
-    # Ensure users table exists
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
-            username TEXT UNIQUE NOT NULL,
-            email TEXT,
     """
     Initializes the database. Idempotent: creates tables if they don't exist.
     Supports PostgreSQL (Supabase) and SQLite dialects.
@@ -348,18 +338,77 @@ def init_db():
     # Detect Dialect
     is_postgres = hasattr(conn, 'get_dsn_parameters')
     pk_type = "SERIAL PRIMARY KEY" if is_postgres else "INTEGER PRIMARY KEY AUTOINCREMENT"
-        CREATE TABLE IF NOT EXISTS user_progress (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER,
-            topic_id INTEGER,
-            attempts INTEGER DEFAULT 0,
-            accuracy FLOAT DEFAULT 0,
-            last_score FLOAT DEFAULT 0,
-            last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY(user_id) REFERENCES users(id),
-            FOREIGN KEY(topic_id) REFERENCES topics(id)
-        )
-    """)
+    
+    print(f"[DB DEBUG] Initializing tables (Dialect: {'Postgres' if is_postgres else 'SQLite'})...")
+
+    try:
+        # 1. USERS TABLE
+        cur.execute(f"""
+            CREATE TABLE IF NOT EXISTS users (
+                id {pk_type},
+                name TEXT NOT NULL,
+                username TEXT UNIQUE NOT NULL,
+                email TEXT UNIQUE,
+                password TEXT NOT NULL,
+                role TEXT DEFAULT 'student',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+
+        # 2. OTP TABLE
+        cur.execute(f"""
+            CREATE TABLE IF NOT EXISTS otp_store (
+                id {pk_type},
+                email TEXT NOT NULL,
+                otp TEXT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+
+        # 3. UPLOADS (ACADEMIC CONTENT)
+        cur.execute(f"""
+            CREATE TABLE IF NOT EXISTS subjects (
+                id {pk_type},
+                name TEXT NOT NULL UNIQUE
+            )
+        """)
+        cur.execute(f"""
+            CREATE TABLE IF NOT EXISTS units (
+                id {pk_type},
+                subject_id INTEGER REFERENCES subjects(id),
+                name TEXT NOT NULL
+            )
+        """)
+        cur.execute(f"""
+            CREATE TABLE IF NOT EXISTS notes (
+                id {pk_type},
+                topic_id INTEGER,
+                content TEXT,
+                file_path TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+        
+        # 4. ADMIN REQUESTS
+        cur.execute(f"""
+            CREATE TABLE IF NOT EXISTS admin_requests (
+                id {pk_type},
+                name TEXT NOT NULL,
+                username TEXT UNIQUE NOT NULL,
+                email TEXT,
+                password TEXT NOT NULL,
+                status TEXT DEFAULT 'pending',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+
+        conn.commit()
+        print("[DB DEBUG] Schema check complete. Tables verified/created.")
+    except Exception as e:
+        print(f"[DB DEBUG] CRITICAL ERROR during init_db: {e}")
+        conn.rollback()
+    finally:
+        conn.close()
     
     # Ensure subtopic_progress table exists
     cur.execute("""
