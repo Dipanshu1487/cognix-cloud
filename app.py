@@ -5,9 +5,6 @@ from memory.student_intelligence import StudentIntelligenceSystem
 import bcrypt
 import upload.db as db
 
-# Initialize Database Schema
-db.init_db()
-
 # --- BACKEND AUTO-START (SAFE) ---
 def start_backend_if_needed():
     if st.session_state.get("backend_started", False):
@@ -85,7 +82,9 @@ from ui.auth import render_login_signup
 import upload.db as db
 
 # ── INITIALIZE DATABASE ──────────────────────────────────────────────
-db.init_db()
+if "db_initialized" not in st.session_state:
+    db.init_db()
+    st.session_state.db_initialized = True
 
 
 # ── SIS CACHE ────────────────────────────────────────────────────────

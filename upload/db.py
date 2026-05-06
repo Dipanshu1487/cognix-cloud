@@ -13,9 +13,10 @@ def _get_secret(key, default=None):
     except Exception:
         return os.getenv(key, default)
 
+@st.cache_resource
 def get_connection():
     """
-    Returns a connection object. 
+    Returns a cached connection object. 
     Strictly uses PostgreSQL (Supabase). No SQLite fallback allowed.
     """
     host = _get_secret("DB_HOST")
@@ -42,40 +43,58 @@ def get_connection():
 
 # --- CORE DATABASE FUNCTIONS ---
 
+@st.cache_data
 def fetch_subjects():
     conn = get_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
     cur.execute("SELECT id, name FROM subjects ORDER BY name ASC")
     res = cur.fetchall()
     cur.close()
-    conn.close()
     return [dict(r) for r in res]
 
+@st.cache_data
 def fetch_units(subject_id):
     conn = get_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
     cur.execute("SELECT id, name FROM units WHERE subject_id = %s ORDER BY name ASC", (subject_id,))
     res = cur.fetchall()
     cur.close()
-    conn.close()
     return [dict(r) for r in res]
 
+@st.cache_data
 def fetch_sections(unit_id):
     conn = get_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
     cur.execute("SELECT id, name FROM sections WHERE unit_id = %s ORDER BY name ASC", (unit_id,))
     res = cur.fetchall()
     cur.close()
-    conn.close()
     return [dict(r) for r in res]
 
+@st.cache_data
 def fetch_topics(section_id):
     conn = get_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
     cur.execute("SELECT id, name FROM topics WHERE section_id = %s ORDER BY name ASC", (section_id,))
     res = cur.fetchall()
     cur.close()
-    conn.close()
+    return [dict(r) for r in res]
+
+@st.cache_data
+def fetch_subtopics(topic_id):
+    conn = get_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    cur.execute("SELECT id, name FROM subtopics WHERE topic_id = %s ORDER BY name ASC", (topic_id,))
+    res = cur.fetchall()
+    cur.close()
+    return [dict(r) for r in res]
+
+@st.cache_data
+def fetch_subtopics_all():
+    conn = get_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    cur.execute("SELECT id, topic_id, name, tags FROM subtopics")
+    res = cur.fetchall()
+    cur.close()
     return [dict(r) for r in res]
 
 def insert_note(topic_id, content, file_path):
@@ -382,6 +401,15 @@ def update_practice(user_id, topic_id, is_correct):
     cur.close()
     conn.close()
 
+@st.cache_data
+def get_all_user_progress(user_id):
+    conn = get_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    cur.execute("SELECT * FROM progress WHERE user_id = %s", (user_id,))
+    res = cur.fetchall()
+    cur.close()
+    return {r['topic']: dict(r) for r in res}
+
 def get_progress(user_id, topic_id):
     details = get_topic_details(topic_id)
     if not details: return None
@@ -391,7 +419,6 @@ def get_progress(user_id, topic_id):
     cur.execute("SELECT * FROM progress WHERE topic = %s AND user_id = %s", (details['topic'], user_id))
     row = cur.fetchone()
     cur.close()
-    conn.close()
     return dict(row) if row else None
 
 def get_practice_topics(user_id):
@@ -668,6 +695,13 @@ def init_db():
         id SERIAL PRIMARY KEY,
         section_id INTEGER REFERENCES sections(id) ON DELETE CASCADE,
         name VARCHAR(255) NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS subtopics (
+        id SERIAL PRIMARY KEY,
+        topic_id INTEGER REFERENCES topics(id) ON DELETE CASCADE,
+        name VARCHAR(255) NOT NULL,
+        tags TEXT
     );
 
     CREATE TABLE IF NOT EXISTS notes (
