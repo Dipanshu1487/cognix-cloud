@@ -98,64 +98,71 @@ def render_login_signup():
 
                         valid = False
                         if not user_row:
-                            print("[AUTH DEBUG] No user found")
+                            print("[AUTH DEBUG] No user found for username:", l_user)
                         else:
-                            print("[AUTH DEBUG] Username from DB:", user_row["username"])
-                            print("[AUTH DEBUG] User role:", user_row["role"])
+                            print("[AUTH DEBUG] Username from DB:", user_row.get("username"))
+                            print("[AUTH DEBUG] Available keys:", list(user_row.keys()) if user_row else "None")
+                            
+                            user_role = user_row.get("role", "unknown")
+                            print("[AUTH DEBUG] User role:", user_role)
 
-                            stored_hash = user_row["password"]
-                            print("[AUTH DEBUG] Hash type:", type(stored_hash))
+                            stored_hash = user_row.get("password")
+                            
+                            if not stored_hash:
+                                print("[AUTH DEBUG] Password field is empty/None")
+                            else:
+                                print("[AUTH DEBUG] Hash type:", type(stored_hash))
 
-                            try:
-                                # Convert memoryview to bytes if needed
-                                if isinstance(stored_hash, memoryview):
-                                    stored_hash = bytes(stored_hash)
-                                    print("[AUTH DEBUG] Converted memoryview to bytes")
-                                elif isinstance(stored_hash, str):
-                                    stored_hash = stored_hash.encode('utf-8')
-                                    print("[AUTH DEBUG] Converted string to bytes")
-                                
-                                print("[AUTH DEBUG] Final hash type:", type(stored_hash))
-
-                                # Check password - bcrypt.checkpw expects bytes for both params
-                                password_match = bcrypt.checkpw(
-                                    l_pass.encode("utf-8"),
-                                    stored_hash  # Pass bytes directly, no encoding
-                                )
-
-                                print("[AUTH DEBUG] Password Match Result:", password_match)
-
-                                if password_match:
-                                    print("[AUTH DEBUG] PASSWORD VERIFIED SUCCESSFULLY")
-                                    # Now check role
-                                    if sel == 'admin':
-                                        if user_row['role'] in ['admin', 'super_admin']:
-                                            valid = True
-                                            print("[AUTH DEBUG] Admin role verified")
-                                        else:
-                                            print(f"[AUTH DEBUG] User role is {user_row['role']}, not admin")
-                                    else:
-                                        if user_row['role'] == 'user':
-                                            valid = True
-                                            print("[AUTH DEBUG] User role verified")
-                                        else:
-                                            print(f"[AUTH DEBUG] User role is {user_row['role']}, not user")
-                                else:
-                                    print("[AUTH DEBUG] PASSWORD VERIFICATION FAILED")
+                                try:
+                                    # Convert memoryview to bytes if needed
+                                    if isinstance(stored_hash, memoryview):
+                                        stored_hash = bytes(stored_hash)
+                                        print("[AUTH DEBUG] Converted memoryview to bytes")
+                                    elif isinstance(stored_hash, str):
+                                        stored_hash = stored_hash.encode('utf-8')
+                                        print("[AUTH DEBUG] Converted string to bytes")
                                     
-                            except Exception as e:
-                                print(f"[AUTH DEBUG] Bcrypt error: {type(e).__name__} - {e}")
-                                import traceback
-                                traceback.print_exc()
+                                    print("[AUTH DEBUG] Final hash type:", type(stored_hash))
+
+                                    # Check password - bcrypt.checkpw expects bytes for both params
+                                    password_match = bcrypt.checkpw(
+                                        l_pass.encode("utf-8"),
+                                        stored_hash
+                                    )
+
+                                    print("[AUTH DEBUG] Password Match Result:", password_match)
+
+                                    if password_match:
+                                        print("[AUTH DEBUG] PASSWORD VERIFIED SUCCESSFULLY")
+                                        # Now check role
+                                        if sel == 'admin':
+                                            if user_role in ['admin', 'super_admin']:
+                                                valid = True
+                                                print("[AUTH DEBUG] Admin role verified")
+                                            else:
+                                                print(f"[AUTH DEBUG] User role is {user_role}, not admin")
+                                        else:
+                                            if user_role == 'user':
+                                                valid = True
+                                                print("[AUTH DEBUG] User role verified")
+                                            else:
+                                                print(f"[AUTH DEBUG] User role is {user_role}, not user")
+                                    else:
+                                        print("[AUTH DEBUG] PASSWORD VERIFICATION FAILED")
+                                        
+                                except Exception as e:
+                                    print(f"[AUTH DEBUG] Bcrypt error: {type(e).__name__} - {e}")
+                                    import traceback
+                                    traceback.print_exc()
                         
                         if valid:
                             print(f"[AUTH DEBUG] Login success for {l_user}")
                             st.session_state.user = {
                                 "id": user_row['id'],
-                                "name": user_row['name'],
-                                "username": user_row['username'],
-                                "email": user_row['email'],
-                                "role": user_row['role']
+                                "name": user_row.get('name'),
+                                "username": user_row.get('username'),
+                                "email": user_row.get('email'),
+                                "role": user_row.get('role')
                             }
                             cur.close()
                             conn.close()
