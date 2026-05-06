@@ -383,9 +383,12 @@ def update_practice(user_id, topic_id, is_correct):
     conn.close()
 
 def get_progress(user_id, topic_id):
+    details = get_topic_details(topic_id)
+    if not details: return None
+    
     conn = get_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
-    cur.execute("SELECT * FROM progress WHERE topic_id = %s AND user_id = %s", (topic_id, user_id))
+    cur.execute("SELECT * FROM progress WHERE topic = %s AND user_id = %s", (details['topic'], user_id))
     row = cur.fetchone()
     cur.close()
     conn.close()
