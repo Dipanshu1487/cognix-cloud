@@ -221,7 +221,11 @@ with st.sidebar:
             pw = st.text_input("Password to confirm", type="password", key="settings_reset_pw")
             if st.button("🔥 WIPE NOW", type="primary", use_container_width=True):
                 u_data = db.get_user_by_id(st.session_state.user['id'])
-                if bcrypt.checkpw(pw.encode('utf-8'), u_data['password'].encode('utf-8') if isinstance(u_data['password'], str) else u_data['password']):
+                stored_hash = u_data['password']
+                if isinstance(stored_hash, memoryview):
+                    stored_hash = stored_hash.tobytes().decode("utf-8")
+                
+                if bcrypt.checkpw(pw.encode('utf-8'), stored_hash.encode('utf-8')):
                     if db.hard_reset_academic_progress(st.session_state.user['id']):
                         st.toast("🔥 Progress wiped.")
                         st.success("Success!")

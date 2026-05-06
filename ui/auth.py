@@ -92,6 +92,7 @@ def render_login_signup():
                         conn = db.get_connection()
                         cur = conn.cursor(cursor_factory=RealDictCursor)
                         cur.execute("SELECT * FROM users WHERE username = %s", (l_user,))
+
                         user_row = cur.fetchone()
                         
                         print("[AUTH DEBUG] USER FETCHED:", user_row)
@@ -170,6 +171,7 @@ def render_login_signup():
                         else:
                             print(f"[AUTH DEBUG] Login failed for {l_user}")
                             st.error("Invalid credentials.")
+
                         cur.close()
                         conn.close()
 
@@ -184,7 +186,7 @@ def render_login_signup():
                     if not st.session_state.otp_sent:
                         if st.button("Send Reset OTP"):
                             conn = db.get_connection()
-                            cur = conn.cursor()
+                            cur = conn.cursor(cursor_factory=RealDictCursor)
                             cur.execute("SELECT id FROM users WHERE email = %s", (reset_email,))
                             user_data = cur.fetchone()
                             cur.close()
@@ -193,7 +195,7 @@ def render_login_signup():
                             if user_data:
                                 otp = str(random.randint(1000, 9999))
                                 st.session_state.signup_otp = otp
-                                st.session_state.reset_user = user_data[0]
+                                st.session_state.reset_user = user_data['id']
                                 success, msg = send_otp(reset_email, otp)
                                 if success:
                                     st.session_state.otp_sent = True
