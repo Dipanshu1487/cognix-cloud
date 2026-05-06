@@ -111,7 +111,7 @@ def render_profile_page():
                             st.success(f"OTP sent to {new_email}")
                             st.rerun()
                         else:
-                            st.error(f"Failed to send OTP: {msg}")
+                            st.error(f"OTP Error: {msg}")
                 else:
                     st.info(f"OTP sent to {new_email}")
                     entered_otp = st.text_input("Enter 4-Digit OTP", key="prof_otp_val")
