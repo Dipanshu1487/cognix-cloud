@@ -95,17 +95,14 @@ def render_login_signup():
                         user_row = cur.fetchone()
                         
                         print("[AUTH DEBUG] USER FETCHED:", user_row)
+                        print("[AUTH DEBUG] Available DB columns:", list(user_row.keys()) if user_row else "None")
 
                         valid = False
                         if not user_row:
                             print("[AUTH DEBUG] No user found for username:", l_user)
                         else:
                             print("[AUTH DEBUG] Username from DB:", user_row.get("username"))
-                            print("[AUTH DEBUG] Available keys:", list(user_row.keys()) if user_row else "None")
                             
-                            user_role = user_row.get("role", "unknown")
-                            print("[AUTH DEBUG] User role:", user_role)
-
                             stored_hash = user_row.get("password")
                             
                             if not stored_hash:
@@ -134,19 +131,22 @@ def render_login_signup():
 
                                     if password_match:
                                         print("[AUTH DEBUG] PASSWORD VERIFIED SUCCESSFULLY")
-                                        # Now check role
+                                        
+                                        # Get role - default to 'user' if role column doesn't exist
+                                        user_role = user_row.get("role", "user")
+                                        print("[AUTH DEBUG] User role:", user_role)
+                                        
+                                        # Check role match
                                         if sel == 'admin':
                                             if user_role in ['admin', 'super_admin']:
                                                 valid = True
                                                 print("[AUTH DEBUG] Admin role verified")
                                             else:
-                                                print(f"[AUTH DEBUG] User role is {user_role}, not admin")
+                                                print(f"[AUTH DEBUG] User role is {user_role}, not admin - only admins can access admin block")
                                         else:
-                                            if user_role == 'user':
-                                                valid = True
-                                                print("[AUTH DEBUG] User role verified")
-                                            else:
-                                                print(f"[AUTH DEBUG] User role is {user_role}, not user")
+                                            # For student/user access - allow any user
+                                            valid = True
+                                            print("[AUTH DEBUG] User role verified for student access")
                                     else:
                                         print("[AUTH DEBUG] PASSWORD VERIFICATION FAILED")
                                         
@@ -158,11 +158,11 @@ def render_login_signup():
                         if valid:
                             print(f"[AUTH DEBUG] Login success for {l_user}")
                             st.session_state.user = {
-                                "id": user_row['id'],
-                                "name": user_row.get('name'),
+                                "id": user_row.get('id'),
+                                "name": user_row.get('name', 'User'),
                                 "username": user_row.get('username'),
                                 "email": user_row.get('email'),
-                                "role": user_row.get('role')
+                                "role": user_row.get('role', 'user')
                             }
                             cur.close()
                             conn.close()
