@@ -125,7 +125,11 @@ def render_login_signup():
                         valid = False
                         if user_row:
                             try:
-                                if bcrypt.checkpw(l_pass.encode('utf-8'), user_row['password'].tobytes() if isinstance(user_row['password'], memoryview) else user_row['password'].encode('utf-8') [...]
+                                stored_hash = user_row['password']
+                                if isinstance(stored_hash, memoryview):
+                                    stored_hash = stored_hash.tobytes().decode('utf-8')
+                                
+                                if bcrypt.checkpw(l_pass.encode('utf-8'), stored_hash.encode('utf-8')):
                                     if sel == 'admin':
                                         if user_row['role'] in ['admin', 'super_admin']:
                                             valid = True
