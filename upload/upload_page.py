@@ -13,22 +13,22 @@ def render_upload_page():
         st.warning("No subjects found.")
         st.stop()
 
-    subject_dict = {name: id for id, name in subjects}
+    subject_dict = {s['name']: s['id'] for s in subjects}
     selected_subject = st.selectbox("Select Subject", options=[""] + list(subject_dict.keys()))
 
     if selected_subject:
         units = db.fetch_units(subject_dict[selected_subject])
-        unit_dict = {name: id for id, name in units}
+        unit_dict = {u['name']: u['id'] for u in units}
         selected_unit = st.selectbox("Select Unit", options=[""] + list(unit_dict.keys()))
 
         if selected_unit:
             sections = db.fetch_sections(unit_dict[selected_unit])
-            section_dict = {name: id for id, name in sections}
+            section_dict = {s['name']: s['id'] for s in sections}
             selected_section = st.selectbox("Select Section", options=[""] + list(section_dict.keys()))
 
             if selected_section:
                 topics = db.fetch_topics(section_dict[selected_section])
-                topic_dict = {name: id for id, name in topics}
+                topic_dict = {t['name']: t['id'] for t in topics}
                 selected_topic = st.selectbox("Select Topic", options=[""] + list(topic_dict.keys()))
 
                 if selected_topic:

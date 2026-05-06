@@ -1,5 +1,4 @@
 import streamlit as st
-import sqlite3
 import random
 import re
 import smtplib
@@ -8,6 +7,7 @@ import bcrypt
 import os
 from ui.components import render_logo
 import upload.db as db
+from psycopg2.extras import RealDictCursor
 
 def send_otp(receiver_email, otp):
     EMAIL = os.getenv("GMAIL_USER")
@@ -89,26 +89,27 @@ def render_login_signup():
                     l_user = st.text_input("Username", key="l_user")
                     l_pass = st.text_input("Password", type="password", key="l_pass")
                     if st.button("Login", use_container_width=True, type="primary"):
-                        conn = sqlite3.connect("cognix.db")
-                        conn.row_factory = sqlite3.Row
-                        cur = conn.cursor()
-                        cur.execute("SELECT * FROM users WHERE username = ?", (l_user,))
+                        conn = db.get_connection()
+                        cur = conn.cursor(cursor_factory=RealDictCursor)
+                        cur.execute("SELECT * FROM users WHERE username = %s", (l_user,))
                         user_row = cur.fetchone()
                         
                         valid = False
                         if user_row:
                             try:
-                                if bcrypt.checkpw(l_pass.encode('utf-8'), user_row['password']):
+                                if bcrypt.checkpw(l_pass.encode('utf-8'), user_row['password'].tobytes() if isinstance(user_row['password'], memoryview) else user_row['password'].encode('utf-8') if isinstance(user_row['password'], str) else user_row['password']):
                                     if sel == 'admin':
                                         if user_row['role'] in ['admin', 'super_admin']:
                                             valid = True
                                     else:
                                         if user_row['role'] == 'user':
                                             valid = True
-                            except:
+                            except Exception as e:
+                                print(f"[DB DEBUG] Login bcrypt error: {e}")
                                 pass
                         
                         if valid:
+                            print(f"[DB DEBUG] Login success for {l_user}")
                             st.session_state.user = {
                                 "id": user_row['id'],
                                 "name": user_row['name'],
@@ -116,10 +117,13 @@ def render_login_signup():
                                 "email": user_row['email'],
                                 "role": user_row['role']
                             }
+                            cur.close()
                             conn.close()
                             st.rerun()
                         else:
+                            print(f"[DB DEBUG] Login failed for {l_user}")
                             st.error("Invalid credentials.")
+                        cur.close()
                         conn.close()
 
                     if st.button("Forgot Password?", type="secondary", use_container_width=True):
@@ -132,10 +136,11 @@ def render_login_signup():
                     
                     if not st.session_state.otp_sent:
                         if st.button("Send Reset OTP"):
-                            conn = sqlite3.connect("cognix.db")
+                            conn = db.get_connection()
                             cur = conn.cursor()
-                            cur.execute("SELECT id FROM users WHERE email = ?", (reset_email,))
+                            cur.execute("SELECT id FROM users WHERE email = %s", (reset_email,))
                             user_data = cur.fetchone()
+                            cur.close()
                             conn.close()
                             
                             if user_data:
@@ -157,7 +162,7 @@ def render_login_signup():
                         if st.button("Reset Password"):
                             if entered_otp == st.session_state.signup_otp:
                                 hashed_new = bcrypt.hashpw(new_pass.encode('utf-8'), bcrypt.gensalt())
-                                db.change_password(st.session_state.reset_user, hashed_new)
+                                db.change_password(st.session_state.reset_user, hashed_new.decode('utf-8'))
                                 st.success("Password reset! Please login.")
                                 st.session_state.forgot_password_mode = False
                                 st.session_state.otp_sent = False
@@ -180,14 +185,18 @@ def render_login_signup():
                         elif not re.match("^[a-zA-Z0-9_]*$", s_user):
                             st.error("❌ Alphanumeric and underscores only.")
                         else:
-                            conn = sqlite3.connect("cognix.db", check_same_thread=False)
+                            print(f"[DB DEBUG] Checking username: {s_user}")
+                            conn = db.get_connection()
                             cur = conn.cursor()
-                            cur.execute("SELECT id FROM users WHERE username = ?", (s_user,))
+                            cur.execute("SELECT id FROM users WHERE username = %s", (s_user,))
                             if cur.fetchone():
+                                print(f"[DB DEBUG] Username {s_user} already taken")
                                 st.error("❌ Already taken.")
                             else:
+                                print(f"[DB DEBUG] Username {s_user} available")
                                 st.success("✅ Available")
                                 user_valid = True
+                            cur.close()
                             conn.close()
                                 
                     s_pass = st.text_input("Password", type="password", key="s_pass")
@@ -231,16 +240,19 @@ def render_login_signup():
                     else:
                         st.success("✅ Email Verified")
                         if st.button("Sign Up", use_container_width=True, type="primary", disabled=not (s_name and user_valid and pass_valid and st.session_state.email_verified)):
-                            hashed_pw = bcrypt.hashpw(s_pass.encode('utf-8'), bcrypt.gensalt())
-                            conn = sqlite3.connect("cognix.db")
+                            hashed_pw = bcrypt.hashpw(s_pass.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+                            conn = db.get_connection()
                             cur = conn.cursor()
                             if sel == 'admin':
-                                cur.execute("INSERT INTO admin_requests (name, username, email, password) VALUES (?, ?, ?, ?)", (s_name, s_user, s_email, hashed_pw))
+                                cur.execute("INSERT INTO admin_requests (name, username, email, password) VALUES (%s, %s, %s, %s)", (s_name, s_user, s_email, hashed_pw))
+                                print(f"[DB DEBUG] Admin request created for {s_user}")
                                 msg = "✅ Request Sent! Wait for Super Admin approval."
                             else:
-                                cur.execute("INSERT INTO users (name, username, email, password, role) VALUES (?, ?, ?, ?, ?)", (s_name, s_user, s_email, hashed_pw, sel))
+                                cur.execute("INSERT INTO users (name, username, email, password, role) VALUES (%s, %s, %s, %s, %s)", (s_name, s_user, s_email, hashed_pw, sel))
+                                print(f"[DB DEBUG] Signup insert success for {s_user}")
                                 msg = "✅ Created! Now Login."
                             conn.commit()
+                            cur.close()
                             conn.close()
                             
                             st.session_state.signup_otp = None
@@ -248,3 +260,4 @@ def render_login_signup():
                             st.session_state.otp_sent = False
                             st.session_state.signup_email = None
                             st.success(msg)
+
