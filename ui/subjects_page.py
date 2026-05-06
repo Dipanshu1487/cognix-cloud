@@ -9,10 +9,6 @@ def render_subjects_page(sis):
     structure = sis.get_subject_structure()
     subjects = list(structure.keys())
     
-    # PERFORMANCE: Bulk fetch all user progress once to avoid N+1 query problem in the loop
-    user_id = st.session_state.user['id']
-    user_progress_map = db.get_all_user_progress(user_id)
-    
     if not subjects:
         st.warning("No academic subjects found in the database.")
         st.stop()
@@ -35,8 +31,9 @@ def render_subjects_page(sis):
                         cols = st.columns(2)
                         for j, topic in enumerate(topics):
                             with cols[j % 2]:
-                                # Use cached progress map instead of hitting DB per topic card
-                                progress = user_progress_map.get(topic['name'])
+                                user_id = st.session_state.user['id']
+                                status = sis.get_topic_status(user_id, topic['id'])
+                                progress = db.get_progress(user_id, topic['id'])
                                 
                                 # Mastery = 50% (Notes) + 50% (Practice)
                                 if progress:

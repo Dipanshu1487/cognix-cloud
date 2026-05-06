@@ -17,7 +17,6 @@ class StudentIntelligenceSystem:
             if cur.rowcount == 0:
                 cur.execute("INSERT INTO user_progress (user_id, topic_id, attempts) VALUES (?, ?, 1)", (user_id, topic_id))
             conn.commit()
-            cur.close()
             conn.close()
             return res
         return None

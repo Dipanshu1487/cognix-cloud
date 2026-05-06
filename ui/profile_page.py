@@ -13,20 +13,15 @@ import io
 def send_otp(receiver_email, otp):
     """
     Sends an OTP via Gmail SMTP_SSL (Port 465).
-    Uses GMAIL_USER and GMAIL_APP_PASSWORD.
+    Uses GMAIL_USER and GMAIL_PASS (with fallback).
     """
     try:
         EMAIL = st.secrets.get("GMAIL_USER") or os.getenv("GMAIL_USER")
-        # Prioritizing GMAIL_PASS as requested by the user
         PASSWORD = st.secrets.get("GMAIL_PASS") or st.secrets.get("GMAIL_APP_PASSWORD") or os.getenv("GMAIL_PASS")
         
-        print(f"[OTP DEBUG] Attempting send to {receiver_email}")
-        print(f"[OTP DEBUG] EMAIL FOUND: {bool(EMAIL)}")
-        print(f"[OTP DEBUG] PASS FOUND: {bool(PASSWORD)}")
-        
         if not EMAIL or not str(EMAIL).strip() or not PASSWORD or not str(PASSWORD).strip():
-            return False, "Email configuration is empty or missing (GMAIL_USER/GMAIL_PASS)"
-            
+            return False, "Email configuration missing (GMAIL_USER/GMAIL_PASS)"
+
         msg = MIMEText(f"Your cogniX verification code is: {otp}")
         msg['Subject'] = "cogniX Verification"
         msg['From'] = f"cogniX <{EMAIL}>"
@@ -35,10 +30,8 @@ def send_otp(receiver_email, otp):
         with smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=10) as server:
             server.login(EMAIL, PASSWORD)
             server.send_message(msg)
-        print(f"[OTP DEBUG] SUCCESS")
         return True, "Success"
     except Exception as e:
-        print(f"[OTP DEBUG] ERROR: {e}")
         return False, str(e)
     
 def get_base64_image(file_path):

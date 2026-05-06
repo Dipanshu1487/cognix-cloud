@@ -22,9 +22,7 @@ def ask_gemini(command, image_data=None):
     global gemini_history
     
     try:
-        model = _get_model()
-        
-        content = []
+        contents = []
         if command:
             contents.append(command)
         

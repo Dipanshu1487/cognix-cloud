@@ -3,7 +3,6 @@ import os
 from dotenv import load_dotenv
 from memory.student_intelligence import StudentIntelligenceSystem
 import bcrypt
-import upload.db as db
 
 # --- BACKEND AUTO-START (SAFE) ---
 def start_backend_if_needed():
@@ -68,7 +67,7 @@ state_defaults = {
     "reset_user": None,
     "active_topic": None,
     "active_subject": None,
-    "db_config": {"dbname": "postgres", "user": "postgres", "password": "", "host": "localhost", "use_sqlite": False},
+    "db_config": {"dbname": "cognix_db", "user": "postgres", "password": "", "host": "localhost", "use_sqlite": True},
 }
 
 for key, val in state_defaults.items():
@@ -82,9 +81,7 @@ from ui.auth import render_login_signup
 import upload.db as db
 
 # ── INITIALIZE DATABASE ──────────────────────────────────────────────
-if "db_initialized" not in st.session_state:
-    db.init_db()
-    st.session_state.db_initialized = True
+db.init_db()
 
 
 # ── SIS CACHE ────────────────────────────────────────────────────────
@@ -224,11 +221,7 @@ with st.sidebar:
             pw = st.text_input("Password to confirm", type="password", key="settings_reset_pw")
             if st.button("🔥 WIPE NOW", type="primary", use_container_width=True):
                 u_data = db.get_user_by_id(st.session_state.user['id'])
-                stored_hash = u_data['password']
-                if isinstance(stored_hash, memoryview):
-                    stored_hash = stored_hash.tobytes().decode("utf-8")
-                
-                if bcrypt.checkpw(pw.encode('utf-8'), stored_hash.encode('utf-8')):
+                if bcrypt.checkpw(pw.encode('utf-8'), u_data['password'].encode('utf-8') if isinstance(u_data['password'], str) else u_data['password']):
                     if db.hard_reset_academic_progress(st.session_state.user['id']):
                         st.toast("🔥 Progress wiped.")
                         st.success("Success!")

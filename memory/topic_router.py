@@ -1,3 +1,4 @@
+import sqlite3
 import os
 import difflib
 
@@ -6,8 +7,7 @@ class TopicRouter:
         self.db_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "cognix.db")
 
     def _get_connection(self):
-        """Standardized connection helper."""
-        return db.get_connection()
+        return sqlite3.connect(self.db_path)
 
     def identify_topic(self, query):
         conn = self._get_connection()
