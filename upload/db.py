@@ -14,19 +14,35 @@ def _get_secret(key, default=None):
         return os.getenv(key, default)
 
 @st.cache_resource
+def _get_connection_singleton():
+    """Internal singleton holder for the database connection."""
+    return [None]
+
 def get_connection():
     """
-    Returns a cached connection object. 
-    Strictly uses PostgreSQL (Supabase). No SQLite fallback allowed.
+    Returns a persistent, self-healing connection object.
+    Automatically reconnects if the connection goes stale or is closed.
     """
-    host = _get_secret("DB_HOST")
+    holder = _get_connection_singleton()
     
+    # Check if connection exists and is still alive
+    if holder[0] is not None:
+        try:
+            # Quick health check
+            with holder[0].cursor() as cur:
+                cur.execute("SELECT 1")
+            return holder[0]
+        except (psycopg2.InterfaceError, psycopg2.OperationalError):
+            print("[DB DEBUG] Connection stale, reconnecting...")
+            holder[0] = None
+
+    # Connect/Reconnect logic
+    host = _get_secret("DB_HOST")
     if not host:
-        print("[DB DEBUG] CRITICAL: DB_HOST not found")
         raise ConnectionError("CRITICAL: DB_HOST not found. Cannot connect to Supabase.")
     
     try:
-        conn = psycopg2.connect(
+        holder[0] = psycopg2.connect(
             host=host,
             database=_get_secret("DB_NAME", "postgres"),
             user=_get_secret("DB_USER", "postgres"),
@@ -34,8 +50,8 @@ def get_connection():
             port=_get_secret("DB_PORT", "5432"),
             connect_timeout=10
         )
-        print("[DB DEBUG] Connected to Supabase")
-        return conn
+        print("[DB DEBUG] Persistent connection established to Supabase")
+        return holder[0]
     except Exception as e:
         err = f"CRITICAL: Failed to connect to Supabase: {e}"
         print(f"[DB DEBUG] {err}")
