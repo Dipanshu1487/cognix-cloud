@@ -3,6 +3,23 @@ import upload.db as db
 import os
 from core.gemini_engine import ask_gemini
 
+def resolve_path(path):
+    """
+    Tries to resolve a path. 
+    If absolute Windows path, attempts to convert to relative 'uploads/...'
+    """
+    if not path: return None
+    # If file exists as is, return it
+    if os.path.exists(path): return path
+    
+    # Handle absolute Windows paths (e.g. C:\...\uploads\file.jpg)
+    if "uploads" in path:
+        relative_part = path.split("uploads")[-1].lstrip("\\").lstrip("/")
+        new_path = os.path.join("uploads", relative_part)
+        if os.path.exists(new_path): return new_path
+        
+    return None
+
 def build_context(topic_id, details):
     notes = db.get_notes(topic_id)
     questions = db.get_questions(topic_id)
@@ -119,25 +136,28 @@ def render_study_page():
                     if note['content']:
                         st.markdown(f"<div style='font-size:24px;'>{note['content']}</div>", unsafe_allow_html=True)
                     
-                    if note['file_path']:
-                        ext = os.path.splitext(note['file_path'])[1].lower()
+                    res_path = resolve_path(note['file_path'])
+                    if res_path:
+                        ext = os.path.splitext(res_path)[1].lower()
                         if ext in ['.jpg', '.jpeg', '.png']:
-                            st.image(note['file_path'], use_container_width=True)
+                            st.image(res_path, use_container_width=True)
                         elif ext == '.pdf':
-                            if os.path.exists(note['file_path']):
-                                with open(note['file_path'], "rb") as f:
+                            try:
+                                with open(res_path, "rb") as f:
                                     st.download_button(
                                         label="Open PDF Document",
                                         data=f,
-                                        file_name=os.path.basename(note['file_path']),
+                                        file_name=os.path.basename(res_path),
                                         mime="application/pdf",
                                         key=f"pdf_note_{note['id']}",
                                         use_container_width=True
                                     )
-                            else:
-                                st.warning("PDF file not found on disk.")
+                            except Exception as e:
+                                st.warning(f"Could not open PDF: {e}")
                         else:
-                            st.markdown(f"[📁 Download File]({note['file_path']})")
+                            st.markdown(f"[📁 Download File]({res_path})")
+                    elif note['file_path']:
+                        st.warning(f"File not found: {os.path.basename(note['file_path'])}")
                     st.caption(f"Uploaded: {note['created_at']}")
 
     with tab2:
@@ -159,10 +179,13 @@ def render_study_page():
             
             with st.container(border=True):
                 st.markdown(f"<div style='font-size:28px; font-weight:500; margin-bottom:24px;'>{q['question_text']}</div>", unsafe_allow_html=True)
-                if q['file_path']:
-                    ext = os.path.splitext(q['file_path'])[1].lower()
+                res_q_path = resolve_path(q['file_path'])
+                if res_q_path:
+                    ext = os.path.splitext(res_q_path)[1].lower()
                     if ext in ['.jpg', '.jpeg', '.png']:
-                        st.image(q['file_path'])
+                        st.image(res_q_path)
+                elif q['file_path']:
+                    st.warning("Question image not found.")
                 
                 user_ans = st.text_area("Your Answer", key=f"ans_{q['id']}")
                 

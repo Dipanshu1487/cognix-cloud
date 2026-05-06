@@ -34,6 +34,16 @@ def send_otp(receiver_email, otp):
     except Exception as e:
         return False, str(e)
     
+def resolve_path(path):
+    """Tries to resolve absolute Windows paths to relative uploads/ paths."""
+    if not path: return None
+    if os.path.exists(path): return path
+    if "uploads" in path:
+        relative_part = path.split("uploads")[-1].lstrip("\\").lstrip("/")
+        new_path = os.path.join("uploads", relative_part)
+        if os.path.exists(new_path): return new_path
+    return None
+
 def get_base64_image(file_path):
     with open(file_path, "rb") as f:
         data = f.read()
@@ -53,8 +63,8 @@ def render_profile_page():
     with st.container(border=True):
         c1, c2 = st.columns([1, 2])
         with c1:
-            photo_path = u.get('profile_photo')
-            if photo_path and os.path.exists(photo_path):
+            photo_path = resolve_path(u.get('profile_photo'))
+            if photo_path:
                 try:
                     b64 = get_base64_image(photo_path)
                     st.markdown(f"<div style='width:120px; height:120px; border-radius:50%; overflow:hidden; border:3px solid {t['accent']};'><img src='data:image/png;base64,{b64}' style='width:100%; height:100%; object-fit:cover;'></div>", unsafe_allow_html=True)
