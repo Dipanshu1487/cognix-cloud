@@ -13,39 +13,33 @@ def send_otp(receiver_email, otp):
     EMAIL = os.getenv("GMAIL_USER")
     PASSWORD = os.getenv("GMAIL_PASS")
 
-    if not EMAIL or not PASSWORD:
-        return False
+    # 2. STRICT DEBUGGING
+    print(f"[OTP DEBUG] EMAIL LOADED: {EMAIL is not None}")
+    print(f"[OTP DEBUG] PASSWORD LENGTH: {len(PASSWORD) if PASSWORD else 0}")
 
-    body = f"""
-Hello,
-
-Welcome to cogniX — your AI-powered academic learning system.
-
-Please use the verification code below to complete your signup:
-
-━━━━━━━━━━━━━━━━━━━━━━━
-🔐 Verification Code: {otp}
-━━━━━━━━━━━━━━━━━━━━━━━
-
-This code is valid for a short time. Do not share it.
-
-— Team cogniX
-"""
+    body = f"Your cogniX verification code is: {otp}"
     msg = MIMEText(body)
-    msg["Subject"] = "Verify Your Email for cogniX"
+    msg["Subject"] = f"{otp} is your cogniX verification code"
     msg["From"] = f"cogniX <{EMAIL}>"
     msg["To"] = receiver_email
 
     try:
-        server = smtplib.SMTP("smtp.gmail.com", 587)
-        server.starttls()
-        server.login(EMAIL, PASSWORD)
-        server.send_message(msg)
-        server.quit()
-        return True
+        # 3. FORCE SMTP_SSL (Port 465)
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=10) as server:
+            server.login(EMAIL, PASSWORD)
+            server.send_message(msg)
+        
+        print(f"[OTP DEBUG] Success: Sent to {receiver_email}")
+        return True, "OTP sent successfully"
+        
+    except smtplib.SMTPAuthenticationError as e:
+        err = f"SMTP Auth Failed: Check if App Password is correct. {e}"
+        print(f"[OTP DEBUG] {err}")
+        return False, err
     except Exception as e:
-        print("SMTP Error:", e)
-        return False
+        err = f"SMTP ERROR: {type(e).__name__} - {str(e)}"
+        print(f"[OTP DEBUG] {err}")
+        return False, err
 
 def render_login_signup():
     # Inject Optimized High-Visibility CSS
@@ -148,10 +142,13 @@ def render_login_signup():
                                 otp = str(random.randint(1000, 9999))
                                 st.session_state.signup_otp = otp
                                 st.session_state.reset_user = user_data[0]
-                                if send_otp(reset_email, otp):
+                                success, msg = send_otp(reset_email, otp)
+                                if success:
                                     st.session_state.otp_sent = True
                                     st.success("OTP sent to your email")
                                     st.rerun()
+                                else:
+                                    st.error(f"Failed to send email: {msg}")
                             else:
                                 st.error("Account not found")
                     else:
@@ -215,12 +212,13 @@ def render_login_signup():
                             if st.button("Send Verification Code", disabled=not (user_valid and email_valid)):
                                 st.session_state.signup_otp = str(random.randint(1000, 9999))
                                 st.session_state.signup_email = s_email
-                                if send_otp(s_email, st.session_state.signup_otp):
+                                success, msg = send_otp(s_email, st.session_state.signup_otp)
+                                if success:
                                     st.session_state.otp_sent = True
                                     st.success("Verification code sent to your email")
                                     st.rerun()
                                 else:
-                                    st.error("Failed to send email.")
+                                    st.error(f"Failed to send email: {msg}")
                         else:
                             st.info(f"OTP sent to {st.session_state.signup_email}")
                             entered_otp = st.text_input("Enter Verification Code", key="entered_otp")

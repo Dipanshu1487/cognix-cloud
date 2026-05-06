@@ -3,12 +3,65 @@ import os
 import datetime
 import bcrypt
 import json
+import logging
 
+logger = logging.getLogger("cognix.db")
+
+# Path for local SQLite (Fallback)
 DB_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'cognix.db')
 
-def fetch_subjects():
-    conn = sqlite3.connect(DB_PATH)
+def _get_secret(key, default=None):
+    try:
+        import streamlit as st
+        return st.secrets.get(key) or os.getenv(key, default)
+    except Exception:
+        return os.getenv(key, default)
+
+def get_connection():
+    """
+    Returns a connection object. 
+    Switches to PostgreSQL (Supabase) if DB_HOST is set, else SQLite.
+    """
+    host = _get_secret("DB_HOST")
+    
+    if host and host != "localhost":
+        try:
+            import psycopg2
+            conn = psycopg2.connect(
+                host=host,
+                database=_get_secret("DB_NAME", "postgres"),
+                user=_get_secret("DB_USER", "postgres"),
+                password=_get_secret("DB_PASS"),
+                port=_get_secret("DB_PORT", "5432"),
+                connect_timeout=5
+            )
+            print(f"[DB DEBUG] SUCCESS: Connected to Supabase (PostgreSQL) at {host}")
+            return conn
+        except Exception as e:
+            print(f"[DB DEBUG] FAIL: Could not connect to Supabase: {e}")
+            print("[DB DEBUG] FALLBACK: Using local SQLite.")
+            return sqlite3.connect(DB_PATH)
+    else:
+        print("[DB DEBUG] INFO: No DB_HOST found. Using local SQLite.")
+        return sqlite3.connect(DB_PATH)
+
+def check_tables_exist():
+    """Diagnostic to check if tables are visible in the DB."""
+    conn = get_connection()
     cur = conn.cursor()
+    try:
+        if hasattr(conn, 'get_dsn_parameters'): # is_postgres
+            cur.execute("SELECT table_name FROM information_schema.tables WHERE table_schema='public';")
+        else:
+            cur.execute("SELECT name FROM sqlite_master WHERE type='table';")
+        tables = cur.fetchall()
+        print(f"[DB DEBUG] TABLES FOUND: {[t[0] for t in tables]}")
+        return [t[0] for t in tables]
+    except Exception as e:
+        print(f"[DB DEBUG] ERROR Checking tables: {e}")
+        return []
+    finally:
+        conn.close()    cur = conn.cursor()
     cur.execute("SELECT id, name FROM subjects")
     res = cur.fetchall()
     conn.close()
@@ -285,101 +338,16 @@ def init_db():
             name TEXT NOT NULL,
             username TEXT UNIQUE NOT NULL,
             email TEXT,
-            password TEXT NOT NULL,
-            role TEXT DEFAULT 'user',
-            profile_photo TEXT,
-            join_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    """)
-
-    # Ensure core academic tables exist
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS subjects (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT UNIQUE NOT NULL
-        )
-    """)
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS units (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            subject_id INTEGER,
-            name TEXT NOT NULL,
-            FOREIGN KEY(subject_id) REFERENCES subjects(id)
-        )
-    """)
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS sections (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            unit_id INTEGER,
-            name TEXT NOT NULL,
-            FOREIGN KEY(unit_id) REFERENCES units(id)
-        )
-    """)
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS topics (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            section_id INTEGER,
-            name TEXT NOT NULL,
-            description TEXT,
-            FOREIGN KEY(section_id) REFERENCES sections(id)
-        )
-    """)
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS subtopics (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            topic_id INTEGER,
-            name TEXT NOT NULL,
-            tags TEXT,
-            difficulty TEXT,
-            FOREIGN KEY(topic_id) REFERENCES topics(id)
-        )
-    """)
-
-    # Ensure notes table exists with created_at
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS notes (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            topic_id INTEGER,
-            content TEXT,
-            file_path TEXT,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY(topic_id) REFERENCES topics(id)
-        )
-    """)
+    """
+    Initializes the database. Idempotent: creates tables if they don't exist.
+    Supports PostgreSQL (Supabase) and SQLite dialects.
+    """
+    conn = get_connection()
+    cur = conn.cursor()
     
-    # Ensure questions table exists with created_at and question_text
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS questions (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            topic_id INTEGER,
-            question_text TEXT,
-            difficulty TEXT,
-            answer TEXT,
-            explanation TEXT,
-            file_path TEXT,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY(topic_id) REFERENCES topics(id)
-        )
-    """)
-    
-    # Ensure progress table exists
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS progress (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER,
-            topic_id INTEGER,
-            studied INTEGER DEFAULT 0,
-            practiced INTEGER DEFAULT 0,
-            correct INTEGER DEFAULT 0,
-            attempts INTEGER DEFAULT 0,
-            completed INTEGER DEFAULT 0,
-            last_accessed TIMESTAMP,
-            FOREIGN KEY(user_id) REFERENCES users(id),
-            FOREIGN KEY(topic_id) REFERENCES topics(id)
-        )
-    """)
-    # Ensure user_progress table exists (used by SIS)
-    cur.execute("""
+    # Detect Dialect
+    is_postgres = hasattr(conn, 'get_dsn_parameters')
+    pk_type = "SERIAL PRIMARY KEY" if is_postgres else "INTEGER PRIMARY KEY AUTOINCREMENT"
         CREATE TABLE IF NOT EXISTS user_progress (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             user_id INTEGER,
