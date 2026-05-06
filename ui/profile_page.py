@@ -11,19 +11,29 @@ from PIL import Image
 import io
 
 def send_otp(receiver_email, otp):
-    EMAIL = st.secrets.get("GMAIL_USER") or os.getenv("GMAIL_USER")
-    PASSWORD = st.secrets.get("GMAIL_PASS") or os.getenv("GMAIL_PASS")
-    if not EMAIL or not PASSWORD: return False
-    msg = MIMEText(f"Your verification code is: {otp}")
-    msg['Subject'] = "cogniX Verification"
-    msg['From'] = EMAIL
-    msg['To'] = receiver_email
+    """
+    Sends an OTP via Gmail SMTP_SSL (Port 465).
+    Uses GMAIL_USER and GMAIL_APP_PASSWORD.
+    """
     try:
-        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+        EMAIL = st.secrets.get("GMAIL_USER") or os.getenv("GMAIL_USER")
+        # Prioritizing GMAIL_PASS as requested by the user
+        PASSWORD = st.secrets.get("GMAIL_PASS") or st.secrets.get("GMAIL_APP_PASSWORD") or os.getenv("GMAIL_PASS")
+        
+        if not EMAIL or not PASSWORD:
+            return False, "Email configuration missing (GMAIL_USER/GMAIL_PASS)"
+            
+        msg = MIMEText(f"Your cogniX verification code is: {otp}")
+        msg['Subject'] = "cogniX Verification"
+        msg['From'] = f"cogniX <{EMAIL}>"
+        msg['To'] = receiver_email
+        
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=10) as server:
             server.login(EMAIL, PASSWORD)
             server.send_message(msg)
-        return True
-    except: return False
+        return True, "Success"
+    except Exception as e:
+        return False, str(e)
     
 def get_base64_image(file_path):
     with open(file_path, "rb") as f:
@@ -95,11 +105,13 @@ def render_profile_page():
                     if st.button("Send OTP to Verify Email", type="primary", use_container_width=True):
                         otp = str(random.randint(1000, 9999))
                         st.session_state.prof_otp = otp
-                        if send_otp(new_email, otp):
+                        success, msg = send_otp(new_email, otp)
+                        if success:
                             st.session_state.prof_otp_sent = True
                             st.success(f"OTP sent to {new_email}")
                             st.rerun()
-                        else: st.error("Failed to send OTP.")
+                        else:
+                            st.error(f"Failed to send OTP: {msg}")
                 else:
                     st.info(f"OTP sent to {new_email}")
                     entered_otp = st.text_input("Enter 4-Digit OTP", key="prof_otp_val")
