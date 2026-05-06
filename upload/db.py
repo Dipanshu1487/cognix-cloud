@@ -350,9 +350,9 @@ def mark_topic_completed(user_id, topic_id):
     row = cur.fetchone()
     now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     if row:
-        cur.execute("UPDATE progress SET completed = 1, last_accessed = %s WHERE user_id = %s AND topic_id = %s", (now, user_id, topic_id))
+        cur.execute("UPDATE progress SET completed = TRUE, last_accessed = %s WHERE user_id = %s AND topic_id = %s", (now, user_id, topic_id))
     else:
-        cur.execute("INSERT INTO progress (user_id, topic_id, studied, completed, last_accessed) VALUES (%s, %s, 1, 1, %s)", (user_id, topic_id, now))
+        cur.execute("INSERT INTO progress (user_id, topic_id, studied, completed, last_accessed) VALUES (%s, %s, TRUE, TRUE, %s)", (user_id, topic_id, now))
     conn.commit()
     cur.close()
     conn.close()
@@ -366,9 +366,9 @@ def update_practice(user_id, topic_id, is_correct):
     now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     correct_inc = 1 if is_correct else 0
     if row:
-        cur.execute("UPDATE progress SET practiced = 1, attempts = attempts + 1, correct = correct + %s, last_accessed = %s WHERE topic_id = %s AND user_id = %s", (correct_inc, now, topic_id, user_id))
+        cur.execute("UPDATE progress SET practiced = TRUE, attempts = attempts + 1, correct = correct + %s, last_accessed = %s WHERE topic_id = %s AND user_id = %s", (correct_inc, now, topic_id, user_id))
     else:
-        cur.execute("INSERT INTO progress (user_id, topic_id, studied, practiced, correct, attempts, last_accessed) VALUES (%s, %s, 0, 1, %s, 1, %s)", (user_id, topic_id, correct_inc, now))
+        cur.execute("INSERT INTO progress (user_id, topic_id, studied, practiced, correct, attempts, last_accessed) VALUES (%s, %s, FALSE, TRUE, %s, 1, %s)", (user_id, topic_id, correct_inc, now))
     
     cur.execute("INSERT INTO practice_attempts (user_id, topic_id, is_correct) VALUES (%s, %s, %s)", (user_id, topic_id, 1 if is_correct else 0))
     
@@ -392,7 +392,7 @@ def get_practice_topics(user_id):
         SELECT p.topic_id, t.name as topic_name, p.attempts, p.correct
         FROM progress p
         JOIN topics t ON p.topic_id = t.id
-        WHERE p.practiced = 1 AND p.user_id = %s
+        WHERE p.practiced = TRUE AND p.user_id = %s
     """, (user_id,))
     res = cur.fetchall()
     cur.close()
@@ -451,7 +451,7 @@ def get_dashboard_stats(user_id):
     stats = {}
     
     # Topics Completed
-    cur.execute("SELECT COUNT(*) as c FROM progress WHERE completed = 1 AND user_id = %s", (user_id,))
+    cur.execute("SELECT COUNT(*) as c FROM progress WHERE completed = TRUE AND user_id = %s", (user_id,))
     stats['topics_completed'] = cur.fetchone()['c']
     
     # Average Accuracy
@@ -467,7 +467,7 @@ def get_dashboard_stats(user_id):
         SELECT t.name, p.last_accessed
         FROM progress p
         JOIN topics t ON p.topic_id = t.id
-        WHERE p.studied = 1 AND p.completed = 0 AND p.user_id = %s
+        WHERE p.studied = TRUE AND p.completed = FALSE AND p.user_id = %s
     """, (user_id,))
     stats['active_topics'] = [dict(r) for r in cur.fetchall()]
     
@@ -492,7 +492,7 @@ def get_dashboard_stats(user_id):
     stats['recently_studied'] = [dict(r) for r in cur.fetchall()]
     
     # Weak Count
-    cur.execute("SELECT COUNT(*) as c FROM progress WHERE studied = 1 AND completed = 0 AND user_id = %s", (user_id,))
+    cur.execute("SELECT COUNT(*) as c FROM progress WHERE studied = TRUE AND completed = FALSE AND user_id = %s", (user_id,))
     stats['weak_count'] = cur.fetchone()['c']
 
     # Total Topics
@@ -508,8 +508,8 @@ def get_overall_progress_data(user_id):
     cur = conn.cursor(cursor_factory=RealDictCursor)
     cur.execute("""
         SELECT 
-            (SELECT COUNT(*) FROM progress WHERE user_id = %s AND completed = 1) as completed,
-            (SELECT COUNT(*) FROM progress WHERE user_id = %s AND studied = 1 AND completed = 0) as learning,
+            (SELECT COUNT(*) FROM progress WHERE user_id = %s AND completed = TRUE) as completed,
+            (SELECT COUNT(*) FROM progress WHERE user_id = %s AND studied = TRUE AND completed = FALSE) as learning,
             ((SELECT COUNT(*) FROM topics) - (SELECT COUNT(*) FROM progress WHERE user_id = %s)) as unstarted
     """, (user_id, user_id, user_id))
     res = cur.fetchone()
@@ -524,7 +524,7 @@ def get_subject_completion_stats(user_id):
         SELECT 
             s.name as subject,
             COUNT(t.id) as total_topics,
-            SUM(CASE WHEN p.completed = 1 THEN 1 ELSE 0 END) as completed_topics
+            SUM(CASE WHEN p.completed = TRUE THEN 1 ELSE 0 END) as completed_topics
         FROM subjects s
         LEFT JOIN units u ON s.id = u.subject_id
         LEFT JOIN sections sec ON u.id = sec.unit_id
@@ -542,12 +542,12 @@ def get_user_achievements(user_id):
     cur = conn.cursor(cursor_factory=RealDictCursor)
     achievements = []
     
-    cur.execute("SELECT COUNT(*) as c FROM progress WHERE user_id = %s AND studied = 1", (user_id,))
+    cur.execute("SELECT COUNT(*) as c FROM progress WHERE user_id = %s AND studied = TRUE", (user_id,))
     studied_count = cur.fetchone()['c']
     if studied_count >= 1: achievements.append({"title": "First Steps", "icon": "🌱", "desc": "Started studying a topic."})
     if studied_count >= 10: achievements.append({"title": "Dedicated Scholar", "icon": "📚", "desc": "Studied 10+ topics."})
         
-    cur.execute("SELECT COUNT(*) as c FROM progress WHERE user_id = %s AND practiced = 1 AND attempts > 0 AND (CAST(correct AS FLOAT) / attempts) >= 0.8", (user_id,))
+    cur.execute("SELECT COUNT(*) as c FROM progress WHERE user_id = %s AND practiced = TRUE AND attempts > 0 AND (CAST(correct AS FLOAT) / attempts) >= 0.8", (user_id,))
     high_acc_count = cur.fetchone()['c']
     if high_acc_count >= 1: achievements.append({"title": "Sharp Mind", "icon": "🎯", "desc": "Scored 80%+ on a topic practice."})
     if high_acc_count >= 5: achievements.append({"title": "Master Learner", "icon": "🏆", "desc": "Mastered 5+ topics with high accuracy."})
