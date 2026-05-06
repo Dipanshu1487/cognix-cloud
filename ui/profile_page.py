@@ -20,6 +20,10 @@ def send_otp(receiver_email, otp):
         # Prioritizing GMAIL_PASS as requested by the user
         PASSWORD = st.secrets.get("GMAIL_PASS") or st.secrets.get("GMAIL_APP_PASSWORD") or os.getenv("GMAIL_PASS")
         
+        print(f"[OTP DEBUG] Attempting send to {receiver_email}")
+        print(f"[OTP DEBUG] EMAIL FOUND: {bool(EMAIL)}")
+        print(f"[OTP DEBUG] PASS FOUND: {bool(PASSWORD)}")
+        
         if not EMAIL or not str(EMAIL).strip() or not PASSWORD or not str(PASSWORD).strip():
             return False, "Email configuration is empty or missing (GMAIL_USER/GMAIL_PASS)"
             
@@ -31,8 +35,10 @@ def send_otp(receiver_email, otp):
         with smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=10) as server:
             server.login(EMAIL, PASSWORD)
             server.send_message(msg)
+        print(f"[OTP DEBUG] SUCCESS")
         return True, "Success"
     except Exception as e:
+        print(f"[OTP DEBUG] ERROR: {e}")
         return False, str(e)
     
 def get_base64_image(file_path):
