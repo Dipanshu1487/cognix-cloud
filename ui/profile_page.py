@@ -52,7 +52,7 @@ def render_profile_page():
     u = st.session_state.user
     t = THEMES.get(st.session_state.theme, THEMES["light"])
     
-    st.header("👤 Profile Management")
+    st.header("👤 Profile Management v2.0")
     
     if 'prof_otp_sent' not in st.session_state: st.session_state.prof_otp_sent = False
     if 'prof_verified' not in st.session_state: st.session_state.prof_verified = False
