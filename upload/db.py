@@ -450,53 +450,56 @@ def get_dashboard_stats(user_id):
     
     stats = {}
     
-    # Topics Completed
-    cur.execute("SELECT COUNT(*) as c FROM progress WHERE completed = TRUE AND user_id = %s", (user_id,))
-    stats['topics_completed'] = cur.fetchone()['c']
+    # 1. Main Dashboard Stats (using score and completed)
+    query = """
+    SELECT
+        COUNT(*) AS total_topics,
+        COUNT(CASE WHEN completed = TRUE THEN 1 END) AS completed_topics,
+        COALESCE(AVG(score), 0) AS avg_score
+    FROM progress
+    WHERE user_id = %s
+    """
+    cur.execute(query, (user_id,))
+    res = cur.fetchone()
     
-    # Average Accuracy
-    cur.execute("SELECT SUM(correct) as sc, SUM(attempts) as sa FROM progress WHERE user_id = %s", (user_id,))
-    row = cur.fetchone()
-    sc = row['sc'] or 0
-    sa = row['sa'] or 0
-    stats['avg_accuracy'] = (sc / sa * 100) if sa > 0 else 0.0
-    stats['total_attempts'] = sa
+    stats['topics_completed'] = res['completed_topics']
+    stats['avg_accuracy'] = float(res['avg_score'])
+    stats['total_attempts'] = res['total_topics']
     
-    # Active Topics
+    # 2. Active Topics (where completed = FALSE)
     cur.execute("""
-        SELECT t.name, p.last_accessed
-        FROM progress p
-        JOIN topics t ON p.topic_id = t.id
-        WHERE p.studied = TRUE AND p.completed = FALSE AND p.user_id = %s
+        SELECT topic as name, created_at as last_accessed
+        FROM progress
+        WHERE completed = FALSE AND user_id = %s
+        ORDER BY created_at DESC
     """, (user_id,))
     stats['active_topics'] = [dict(r) for r in cur.fetchall()]
     
-    # Weak Topics
+    # 3. Weak Topics (where score < 50)
     cur.execute("""
-        SELECT t.name, p.attempts, p.correct
-        FROM progress p
-        JOIN topics t ON p.topic_id = t.id
-        WHERE p.attempts >= 2 AND (CAST(p.correct AS FLOAT) / p.attempts) < 0.5 AND p.user_id = %s
+        SELECT topic as name, score as attempts, 0 as correct
+        FROM progress
+        WHERE score < 50 AND user_id = %s
+        ORDER BY score ASC
     """, (user_id,))
     stats['weak_topics'] = [dict(r) for r in cur.fetchall()]
     
-    # Recently Studied
+    # 4. Recently Studied
     cur.execute("""
-        SELECT t.name, p.last_accessed, p.topic_id, p.completed
-        FROM progress p
-        JOIN topics t ON p.topic_id = t.id
-        WHERE p.user_id = %s
-        ORDER BY p.last_accessed DESC
+        SELECT topic as name, created_at as last_accessed, id as topic_id, completed
+        FROM progress
+        WHERE user_id = %s
+        ORDER BY created_at DESC
         LIMIT 5
     """, (user_id,))
     stats['recently_studied'] = [dict(r) for r in cur.fetchall()]
     
-    # Weak Count
-    cur.execute("SELECT COUNT(*) as c FROM progress WHERE studied = TRUE AND completed = FALSE AND user_id = %s", (user_id,))
+    # 5. Weak Count (topics in progress)
+    cur.execute("SELECT COUNT(*) as c FROM progress WHERE completed = FALSE AND user_id = %s", (user_id,))
     stats['weak_count'] = cur.fetchone()['c']
 
-    # Total Topics
-    cur.execute("SELECT COUNT(*) as c FROM topics")
+    # 6. Total Available (Best guess based on new schema)
+    cur.execute("SELECT COUNT(*) as c FROM progress")
     stats['total_topics_available'] = cur.fetchone()['c']
 
     cur.close()
@@ -509,8 +512,8 @@ def get_overall_progress_data(user_id):
     cur.execute("""
         SELECT 
             (SELECT COUNT(*) FROM progress WHERE user_id = %s AND completed = TRUE) as completed,
-            (SELECT COUNT(*) FROM progress WHERE user_id = %s AND studied = TRUE AND completed = FALSE) as learning,
-            ((SELECT COUNT(*) FROM topics) - (SELECT COUNT(*) FROM progress WHERE user_id = %s)) as unstarted
+            (SELECT COUNT(*) FROM progress WHERE user_id = %s AND completed = FALSE) as learning,
+            ((SELECT COUNT(*) FROM progress) - (SELECT COUNT(*) FROM progress WHERE user_id = %s)) as unstarted
     """, (user_id, user_id, user_id))
     res = cur.fetchone()
     cur.close()
@@ -542,14 +545,14 @@ def get_user_achievements(user_id):
     cur = conn.cursor(cursor_factory=RealDictCursor)
     achievements = []
     
-    cur.execute("SELECT COUNT(*) as c FROM progress WHERE user_id = %s AND studied = TRUE", (user_id,))
-    studied_count = cur.fetchone()['c']
-    if studied_count >= 1: achievements.append({"title": "First Steps", "icon": "🌱", "desc": "Started studying a topic."})
-    if studied_count >= 10: achievements.append({"title": "Dedicated Scholar", "icon": "📚", "desc": "Studied 10+ topics."})
+    cur.execute("SELECT COUNT(*) as c FROM progress WHERE user_id = %s", (user_id,))
+    interaction_count = cur.fetchone()['c']
+    if interaction_count >= 1: achievements.append({"title": "First Steps", "icon": "🌱", "desc": "Started studying a topic."})
+    if interaction_count >= 10: achievements.append({"title": "Dedicated Scholar", "icon": "📚", "desc": "Interacted with 10+ topics."})
         
-    cur.execute("SELECT COUNT(*) as c FROM progress WHERE user_id = %s AND practiced = TRUE AND attempts > 0 AND (CAST(correct AS FLOAT) / attempts) >= 0.8", (user_id,))
+    cur.execute("SELECT COUNT(*) as c FROM progress WHERE user_id = %s AND score >= 80", (user_id,))
     high_acc_count = cur.fetchone()['c']
-    if high_acc_count >= 1: achievements.append({"title": "Sharp Mind", "icon": "🎯", "desc": "Scored 80%+ on a topic practice."})
+    if high_acc_count >= 1: achievements.append({"title": "Sharp Mind", "icon": "🎯", "desc": "Scored 80%+ on a topic."})
     if high_acc_count >= 5: achievements.append({"title": "Master Learner", "icon": "🏆", "desc": "Mastered 5+ topics with high accuracy."})
         
     cur.close()
