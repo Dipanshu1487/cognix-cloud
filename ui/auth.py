@@ -166,14 +166,12 @@ def render_login_signup():
                                 "role": user_row.get('role', 'user')
                             }
                             cur.close()
-                            conn.close()
                             st.rerun()
                         else:
                             print(f"[AUTH DEBUG] Login failed for {l_user}")
                             st.error("Invalid credentials.")
 
                         cur.close()
-                        conn.close()
 
                     if st.button("Forgot Password?", type="secondary", use_container_width=True):
                         st.session_state.forgot_password_mode = True
@@ -190,7 +188,6 @@ def render_login_signup():
                             cur.execute("SELECT id FROM users WHERE email = %s", (reset_email,))
                             user_data = cur.fetchone()
                             cur.close()
-                            conn.close()
                             
                             if user_data:
                                 otp = str(random.randint(1000, 9999))
@@ -246,7 +243,6 @@ def render_login_signup():
                                 st.success("✅ Available")
                                 user_valid = True
                             cur.close()
-                            conn.close()
                                 
                     s_pass = st.text_input("Password", type="password", key="s_pass")
                     pass_valid = False
@@ -302,7 +298,6 @@ def render_login_signup():
                                 msg = "✅ Created! Now Login."
                             conn.commit()
                             cur.close()
-                            conn.close()
                             
                             st.session_state.signup_otp = None
                             st.session_state.email_verified = False

@@ -103,7 +103,6 @@ def insert_note(topic_id, content, file_path):
     cur.execute("INSERT INTO notes (topic_id, content, file_path) VALUES (%s, %s, %s)", (topic_id, content, file_path))
     conn.commit()
     cur.close()
-    conn.close()
 
 def insert_question(topic_id, question_text, difficulty, answer, explanation, file_path):
     conn = get_connection()
@@ -112,7 +111,6 @@ def insert_question(topic_id, question_text, difficulty, answer, explanation, fi
                 (topic_id, question_text, difficulty, answer, explanation, file_path))
     conn.commit()
     cur.close()
-    conn.close()
 
 def get_topic_details(topic_id):
     conn = get_connection()
@@ -127,7 +125,6 @@ def get_topic_details(topic_id):
     """, (topic_id,))
     res = cur.fetchone()
     cur.close()
-    conn.close()
     return dict(res) if res else None
 
 def get_notes(topic_id):
@@ -136,7 +133,6 @@ def get_notes(topic_id):
     cur.execute("SELECT * FROM notes WHERE topic_id = %s ORDER BY created_at DESC", (topic_id,))
     res = cur.fetchall()
     cur.close()
-    conn.close()
     return [dict(row) for row in res]
 
 def get_questions(topic_id):
@@ -145,7 +141,6 @@ def get_questions(topic_id):
     cur.execute("SELECT * FROM questions WHERE topic_id = %s ORDER BY created_at DESC", (topic_id,))
     res = cur.fetchall()
     cur.close()
-    conn.close()
     return [dict(row) for row in res]
 
 def mark_topic_studied(user_id, topic_id):
@@ -363,7 +358,6 @@ def change_password(user_id, new_password):
     cur.execute("UPDATE users SET password = ? WHERE id = ?", (new_password, user_id))
     conn.commit()
     cur.close()
-    conn.close()
 
 def mark_topic_completed(user_id, topic_id):
     details = get_topic_details(topic_id)
@@ -377,7 +371,6 @@ def mark_topic_completed(user_id, topic_id):
                     (user_id, details['subject'], details['topic']))
     conn.commit()
     cur.close()
-    conn.close()
     return True
 
 def update_practice(user_id, topic_id, is_correct):
@@ -399,7 +392,6 @@ def update_practice(user_id, topic_id, is_correct):
     
     conn.commit()
     cur.close()
-    conn.close()
 
 @st.cache_data
 def get_all_user_progress(user_id):
@@ -432,7 +424,6 @@ def get_practice_topics(user_id):
     """, (user_id,))
     res = cur.fetchall()
     cur.close()
-    conn.close()
     return [dict(row) for row in res]
 
 def get_user_profile(user_id):
@@ -441,7 +432,6 @@ def get_user_profile(user_id):
     cur.execute("SELECT id, name, username, email, role, profile_photo, join_date FROM users WHERE id = %s", (user_id,))
     row = cur.fetchone()
     cur.close()
-    conn.close()
     return dict(row) if row else None
 
 def update_profile(user_id, name, email):
@@ -450,7 +440,6 @@ def update_profile(user_id, name, email):
     cur.execute("UPDATE users SET name = %s, email = %s WHERE id = %s", (name, email, user_id))
     conn.commit()
     cur.close()
-    conn.close()
     return True
 
 def update_profile_photo(user_id, photo_path):
@@ -459,7 +448,6 @@ def update_profile_photo(user_id, photo_path):
     cur.execute("UPDATE users SET profile_photo = %s WHERE id = %s", (photo_path, user_id))
     conn.commit()
     cur.close()
-    conn.close()
     return True
 
 def remove_profile_photo(user_id):
@@ -468,7 +456,6 @@ def remove_profile_photo(user_id):
     cur.execute("UPDATE users SET profile_photo = NULL WHERE id = %s", (user_id,))
     conn.commit()
     cur.close()
-    conn.close()
     return True
 
 def change_password(user_id, hashed_pw):
@@ -477,7 +464,6 @@ def change_password(user_id, hashed_pw):
     cur.execute("UPDATE users SET password = %s WHERE id = %s", (hashed_pw, user_id))
     conn.commit()
     cur.close()
-    conn.close()
     return True
 
 def get_dashboard_stats(user_id):
@@ -539,7 +525,6 @@ def get_dashboard_stats(user_id):
     stats['total_topics_available'] = cur.fetchone()['c']
 
     cur.close()
-    conn.close()
     return stats
 
 def get_overall_progress_data(user_id):
@@ -553,7 +538,6 @@ def get_overall_progress_data(user_id):
     """, (user_id, user_id, user_id))
     res = cur.fetchone()
     cur.close()
-    conn.close()
     return dict(res) if res else {"completed": 0, "learning": 0, "unstarted": 0}
 
 def get_subject_completion_stats(user_id):
@@ -573,7 +557,6 @@ def get_subject_completion_stats(user_id):
     """, (user_id,))
     res = cur.fetchall()
     cur.close()
-    conn.close()
     return [dict(r) for r in res]
 
 def get_user_achievements(user_id):
@@ -592,7 +575,6 @@ def get_user_achievements(user_id):
     if high_acc_count >= 5: achievements.append({"title": "Master Learner", "icon": "🏆", "desc": "Mastered 5+ topics with high accuracy."})
         
     cur.close()
-    conn.close()
     return achievements
 
 def hard_reset_academic_progress(user_id):
@@ -608,7 +590,6 @@ def hard_reset_academic_progress(user_id):
         success = False
     finally:
         cur.close()
-        conn.close()
     return success
 
 def get_pending_admin_requests():
@@ -617,7 +598,6 @@ def get_pending_admin_requests():
     cur.execute("SELECT * FROM admin_requests WHERE status = 'pending' ORDER BY created_at DESC")
     res = cur.fetchall()
     cur.close()
-    conn.close()
     return [dict(r) for r in res]
 
 def approve_admin_request(request_id):
@@ -627,7 +607,6 @@ def approve_admin_request(request_id):
     req = cur.fetchone()
     if not req:
         cur.close()
-        conn.close()
         return False
     
     try:
@@ -642,7 +621,6 @@ def approve_admin_request(request_id):
         success = False
     finally:
         cur.close()
-        conn.close()
     return success
 
 def reject_admin_request(request_id):
@@ -651,7 +629,6 @@ def reject_admin_request(request_id):
     cur.execute("UPDATE admin_requests SET status = 'rejected' WHERE id = %s", (request_id,))
     conn.commit()
     cur.close()
-    conn.close()
     return True
 
 def get_user_by_id(user_id):
@@ -742,4 +719,3 @@ def init_db():
         conn.rollback()
     finally:
         cur.close()
-        conn.close()
