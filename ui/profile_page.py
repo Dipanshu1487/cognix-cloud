@@ -20,8 +20,8 @@ def send_otp(receiver_email, otp):
         # Prioritizing GMAIL_PASS as requested by the user
         PASSWORD = st.secrets.get("GMAIL_PASS") or st.secrets.get("GMAIL_APP_PASSWORD") or os.getenv("GMAIL_PASS")
         
-        if not EMAIL or not PASSWORD:
-            return False, "Email configuration missing (GMAIL_USER/GMAIL_PASS)"
+        if not EMAIL or not str(EMAIL).strip() or not PASSWORD or not str(PASSWORD).strip():
+            return False, "Email configuration is empty or missing (GMAIL_USER/GMAIL_PASS)"
             
         msg = MIMEText(f"Your cogniX verification code is: {otp}")
         msg['Subject'] = "cogniX Verification"
