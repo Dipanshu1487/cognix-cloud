@@ -633,6 +633,17 @@ def init_db():
     cur = conn.cursor()
     
     schema = """
+    CREATE TABLE IF NOT EXISTS users (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(100),
+        username VARCHAR(100) UNIQUE NOT NULL,
+        email VARCHAR(255) UNIQUE NOT NULL,
+        password TEXT NOT NULL,
+        role VARCHAR(20) DEFAULT 'user',
+        profile_photo TEXT,
+        join_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+
     CREATE TABLE IF NOT EXISTS subjects (
         id SERIAL PRIMARY KEY,
         name VARCHAR(100) UNIQUE NOT NULL
