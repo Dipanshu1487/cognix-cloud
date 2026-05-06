@@ -3,6 +3,10 @@ import os
 from dotenv import load_dotenv
 from memory.student_intelligence import StudentIntelligenceSystem
 import bcrypt
+import upload.db as db
+
+# Initialize Database Schema
+db.init_db()
 
 # --- BACKEND AUTO-START (SAFE) ---
 def start_backend_if_needed():

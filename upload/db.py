@@ -490,13 +490,12 @@ def get_dashboard_stats(user_id):
     """, (user_id,))
     stats['weak_topics'] = [dict(r) for r in cur.fetchall()]
     
-    # 4. Recently Studied
+    # 4. Recently Studied (Join removed to prevent crash if topics table is missing)
     cur.execute("""
-        SELECT p.topic as name, p.created_at as last_accessed, t.id as topic_id, p.completed
-        FROM progress p
-        JOIN topics t ON p.topic = t.name
-        WHERE p.user_id = %s
-        ORDER BY p.created_at DESC
+        SELECT topic as name, created_at as last_accessed, id as topic_id, completed
+        FROM progress
+        WHERE user_id = %s
+        ORDER BY created_at DESC
         LIMIT 5
     """, (user_id,))
     stats['recently_studied'] = [dict(r) for r in cur.fetchall()]
@@ -629,6 +628,70 @@ def get_user_by_id(user_id):
     return get_user_profile(user_id)
 
 def init_db():
-    """Initializes the database schema if needed. (Optional for Supabase as tables are usually managed via UI/Migrations)"""
-    print("[DB DEBUG] init_db called. Skipping SQLite-specific initialization.")
-    pass
+    """Initializes the database schema for PostgreSQL if tables do not exist."""
+    conn = get_connection()
+    cur = conn.cursor()
+    
+    schema = """
+    CREATE TABLE IF NOT EXISTS subjects (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(100) UNIQUE NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS units (
+        id SERIAL PRIMARY KEY,
+        subject_id INTEGER REFERENCES subjects(id) ON DELETE CASCADE,
+        name VARCHAR(100) NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS sections (
+        id SERIAL PRIMARY KEY,
+        unit_id INTEGER REFERENCES units(id) ON DELETE CASCADE,
+        name VARCHAR(100) NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS topics (
+        id SERIAL PRIMARY KEY,
+        section_id INTEGER REFERENCES sections(id) ON DELETE CASCADE,
+        name VARCHAR(255) NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS notes (
+        id SERIAL PRIMARY KEY,
+        topic_id INTEGER NOT NULL,
+        content TEXT,
+        file_path TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS questions (
+        id SERIAL PRIMARY KEY,
+        topic_id INTEGER NOT NULL,
+        question_text TEXT,
+        difficulty VARCHAR(20),
+        answer TEXT,
+        explanation TEXT,
+        file_path TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS progress (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER NOT NULL,
+        subject VARCHAR(100),
+        topic VARCHAR(255),
+        completed BOOLEAN DEFAULT FALSE,
+        score FLOAT DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+    """
+    try:
+        cur.execute(schema)
+        conn.commit()
+        print("[DB DEBUG] Database schema initialized successfully.")
+    except Exception as e:
+        print(f"[DB DEBUG] Error initializing database: {e}")
+        conn.rollback()
+    finally:
+        cur.close()
+        conn.close()
