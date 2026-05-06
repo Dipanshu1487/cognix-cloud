@@ -130,6 +130,9 @@ def get_questions(topic_id):
     return [dict(row) for row in res]
 
 def mark_topic_studied(user_id, topic_id):
+    details = get_topic_details(topic_id)
+    if not details: return
+    
     conn = get_connection()
     cur = conn.cursor()
     
@@ -344,33 +347,36 @@ def change_password(user_id, new_password):
     conn.close()
 
 def mark_topic_completed(user_id, topic_id):
+    details = get_topic_details(topic_id)
+    if not details: return
+    
     conn = get_connection()
     cur = conn.cursor()
-    cur.execute("SELECT id FROM progress WHERE user_id = %s AND topic_id = %s", (user_id, topic_id))
-    row = cur.fetchone()
-    now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    if row:
-        cur.execute("UPDATE progress SET completed = TRUE, last_accessed = %s WHERE user_id = %s AND topic_id = %s", (now, user_id, topic_id))
-    else:
-        cur.execute("INSERT INTO progress (user_id, topic_id, studied, completed, last_accessed) VALUES (%s, %s, TRUE, TRUE, %s)", (user_id, topic_id, now))
+    cur.execute("UPDATE progress SET completed = TRUE, score = 100 WHERE topic = %s AND user_id = %s", (details['topic'], user_id))
+    if cur.rowcount == 0:
+        cur.execute("INSERT INTO progress (user_id, subject, topic, completed, score) VALUES (%s, %s, %s, TRUE, 100)", 
+                    (user_id, details['subject'], details['topic']))
     conn.commit()
     cur.close()
     conn.close()
     return True
 
 def update_practice(user_id, topic_id, is_correct):
+    details = get_topic_details(topic_id)
+    if not details: return
+    
+    score = 100 if is_correct else 0
+    
     conn = get_connection()
     cur = conn.cursor()
-    cur.execute("SELECT id, attempts, correct FROM progress WHERE topic_id = %s AND user_id = %s", (topic_id, user_id))
+    cur.execute("SELECT id, score FROM progress WHERE topic = %s AND user_id = %s", (details['topic'], user_id))
     row = cur.fetchone()
-    now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    correct_inc = 1 if is_correct else 0
-    if row:
-        cur.execute("UPDATE progress SET practiced = TRUE, attempts = attempts + 1, correct = correct + %s, last_accessed = %s WHERE topic_id = %s AND user_id = %s", (correct_inc, now, topic_id, user_id))
-    else:
-        cur.execute("INSERT INTO progress (user_id, topic_id, studied, practiced, correct, attempts, last_accessed) VALUES (%s, %s, FALSE, TRUE, %s, 1, %s)", (user_id, topic_id, correct_inc, now))
     
-    cur.execute("INSERT INTO practice_attempts (user_id, topic_id, is_correct) VALUES (%s, %s, %s)", (user_id, topic_id, 1 if is_correct else 0))
+    if row:
+        cur.execute("UPDATE progress SET score = %s WHERE id = %s", (score, row[0]))
+    else:
+        cur.execute("INSERT INTO progress (user_id, subject, topic, completed, score) VALUES (%s, %s, %s, FALSE, %s)", 
+                    (user_id, details['subject'], details['topic'], score))
     
     conn.commit()
     cur.close()
@@ -486,10 +492,11 @@ def get_dashboard_stats(user_id):
     
     # 4. Recently Studied
     cur.execute("""
-        SELECT topic as name, created_at as last_accessed, id as topic_id, completed
-        FROM progress
-        WHERE user_id = %s
-        ORDER BY created_at DESC
+        SELECT p.topic as name, p.created_at as last_accessed, t.id as topic_id, p.completed
+        FROM progress p
+        JOIN topics t ON p.topic = t.name
+        WHERE p.user_id = %s
+        ORDER BY p.created_at DESC
         LIMIT 5
     """, (user_id,))
     stats['recently_studied'] = [dict(r) for r in cur.fetchall()]
