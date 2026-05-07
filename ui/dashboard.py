@@ -12,7 +12,7 @@ def render_dashboard():
     t = _t()
     
     # ── Welcome Section ──────────────────────────────────────────────
-    st.markdown(f"<h1 id='welcome-to-cognix'>Welcome back, {u['name']}</h1>", unsafe_allow_html=True)
+    st.markdown(f"<h1 id='welcome-to-cognix'>Welcome back, <span class='username-highlight'>{u['name']}</span></h1>", unsafe_allow_html=True)
 
 
     stats = db.get_dashboard_stats(u['id'])

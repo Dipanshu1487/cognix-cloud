@@ -219,9 +219,14 @@ div[data-baseweb="tab"][aria-selected="true"] {{
 
 /* ── Header Gradient Fix ───────────────────────────────────────── */
 h1#welcome-to-cognix {{
+    color: {t['text']} !important;
+}}
+
+.username-highlight {{
     background: {a_grad};
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    display: inline-block;
 }}
 
 /* Ensure all markdown text respects theme color */
