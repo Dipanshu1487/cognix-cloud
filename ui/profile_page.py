@@ -109,6 +109,11 @@ def render_profile_page():
             print(f"DEBUG: User={u['username']} | Current='{current_email}' | New='{target_email}' | Changed={email_changed}")
             
             if email_changed and not st.session_state.prof_verified:
+                # Reset OTP state if email input changes AFTER sending
+                if st.session_state.prof_otp_sent and target_email != st.session_state.get('prof_target_email'):
+                    st.session_state.prof_otp_sent = False
+                    st.rerun()
+
                 # Email changed - Must verify
                 if not st.session_state.prof_otp_sent:
                     if st.button("Send OTP to Verify Email", type="primary", use_container_width=True):
@@ -117,12 +122,13 @@ def render_profile_page():
                         success, msg = send_otp(new_email, otp)
                         if success:
                             st.session_state.prof_otp_sent = True
+                            st.session_state.prof_target_email = new_email
                             st.success(f"OTP sent to {new_email}")
                             st.rerun()
                         else:
                             st.error(f"OTP Error: {msg}")
                 else:
-                    st.info(f"OTP sent to {new_email}")
+                    st.info(f"OTP sent to {st.session_state.prof_target_email}")
                     entered_otp = st.text_input("Enter 4-Digit OTP", key="prof_otp_val")
                     if st.button("Verify OTP", type="primary", use_container_width=True):
                         if entered_otp == st.session_state.prof_otp:

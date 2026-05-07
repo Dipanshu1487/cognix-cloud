@@ -136,10 +136,13 @@ def render_login_signup():
                                 otp = str(random.randint(1000, 9999))
                                 st.session_state.signup_otp = otp
                                 st.session_state.reset_user = user_data[0]
-                                if send_otp(reset_email, otp):
+                                success, msg = send_otp(reset_email, otp)
+                                if success:
                                     st.session_state.otp_sent = True
                                     st.success("OTP sent to your email")
                                     st.rerun()
+                                else:
+                                    st.error(f"Failed to send email: {msg}")
                             else:
                                 st.error("Account not found")
                     else:
@@ -199,25 +202,41 @@ def render_login_signup():
                     st.divider()
 
                     if not st.session_state.get('email_verified'):
+                        # Email change detection: Reset OTP state if email is different from where we sent it
+                        if st.session_state.get('otp_sent') and s_email != st.session_state.get('signup_email'):
+                            st.session_state.otp_sent = False
+                            st.session_state.signup_otp = None
+                            st.rerun()
+
                         if not st.session_state.get('otp_sent'):
-                            if st.button("Send Verification Code", disabled=not (user_valid and email_valid)):
-                                st.session_state.signup_otp = str(random.randint(1000, 9999))
+                            if st.button("Send Verification Code", disabled=not (user_valid and email_valid), use_container_width=True):
+                                otp = str(random.randint(1000, 9999))
+                                st.session_state.signup_otp = otp
                                 st.session_state.signup_email = s_email
-                                if send_otp(s_email, st.session_state.signup_otp):
+                                success, msg = send_otp(s_email, otp)
+                                if success:
                                     st.session_state.otp_sent = True
-                                    st.success("Verification code sent to your email")
+                                    st.success(f"Verification code sent to {s_email}")
                                     st.rerun()
                                 else:
-                                    st.error("Failed to send email.")
+                                    st.error(f"Failed to send email: {msg}")
                         else:
                             st.info(f"OTP sent to {st.session_state.signup_email}")
                             entered_otp = st.text_input("Enter Verification Code", key="entered_otp")
-                            if st.button("Verify OTP", type="primary", use_container_width=True):
-                                if entered_otp == st.session_state.signup_otp:
-                                    st.session_state.email_verified = True
+                            
+                            c1, c2 = st.columns(2)
+                            with c1:
+                                if st.button("Verify OTP", type="primary", use_container_width=True):
+                                    if entered_otp == st.session_state.signup_otp:
+                                        st.session_state.email_verified = True
+                                        st.rerun()
+                                    else:
+                                        st.error("❌ Incorrect OTP")
+                            with c2:
+                                if st.button("Resend / Change Email", use_container_width=True):
+                                    st.session_state.otp_sent = False
+                                    st.session_state.signup_otp = None
                                     st.rerun()
-                                else:
-                                    st.error("❌ Incorrect OTP")
                     else:
                         st.success("✅ Email Verified")
                         if st.button("Sign Up", use_container_width=True, type="primary", disabled=not (s_name and user_valid and pass_valid and st.session_state.email_verified)):
