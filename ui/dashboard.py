@@ -153,28 +153,21 @@ def render_dashboard():
     with col1:
         st.subheader("💡 Learning Insights")
         
-        # AI Analytical Insight Logic
-        if "dash_insight" not in st.session_state or st.button("🔄 Refresh Analysis"):
-            with st.spinner("Synthesizing academic report..."):
-                prompt = (
-                    f"Academic Profile: {u['name']}\n"
-                    f"Metrics: {stats['topics_completed']} completed, {int(stats['avg_accuracy'])}% accuracy, {stats['weak_count']} active/weak topics.\n"
-                    f"Task: Provide a professional, data-driven academic assessment. "
-                    f"Include: \n"
-                    f"1. Performance Observation (based on accuracy).\n"
-                    f"2. Weak Topic Recommendations (for the {stats['weak_count']} active areas).\n"
-                    f"3. Strategic Study Suggestion (next steps).\n"
-                    f"Tone: Analytical, clinical, and academic. No motivational or neural-pathway metaphors."
-                )
-                try:
-                    st.session_state.dash_insight = ask_gemini(prompt)
-                except:
-                    st.session_state.dash_insight = "Academic analysis currently unavailable. Continue your curriculum to generate more telemetry data."
-        
+        # Professional Static Academic Assessment (Non-AI)
+        accuracy = int(stats['avg_accuracy'])
+        if accuracy >= 80:
+            insight = "Current metrics indicate high conceptual mastery. Recommend maintaining focus on advanced topics and consistency in practice to solidify long-term retention."
+        elif accuracy >= 50:
+            insight = "Performance analysis suggests stable progression with moderate proficiency. Prioritize active recall for flagged topics to improve your cumulative accuracy index."
+        elif stats['topics_completed'] > 0:
+            insight = "Preliminary data shows early-stage curriculum engagement. Targeted review of foundational sections is recommended to address initial proficiency gaps before advancement."
+        else:
+            insight = "System awaiting initial assessment data. Complete your first topic study and practice questions to generate your academic performance baseline."
+
         st.markdown(f"""
-            <div style="background: {t['hover']}; padding: 24px; border-radius: 12px; border-left: 5px solid {t['accent']}; margin-bottom: 24px;">
-                <div style="font-size: 16px; line-height: 1.6; color: {t['text']}; font-family: 'Inter', sans-serif;">
-                    {st.session_state.dash_insight}
+            <div style="background: {t['hover']}; padding: 20px 24px; border-radius: 12px; border-left: 5px solid {t['accent']}; margin-bottom: 24px;">
+                <div style="font-size: 16px; line-height: 1.5; color: {t['text']}; font-family: 'Inter', sans-serif; font-weight: 500;">
+                    {insight}
                 </div>
             </div>
         """, unsafe_allow_html=True)
