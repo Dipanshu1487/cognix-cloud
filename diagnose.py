@@ -50,7 +50,7 @@ except Exception as e:
 print("\n" + "-"*60)
 print("[3] DATABASE")
 print("-"*60)
-for db in ['cognix.db', 'jarvis.db']:
+for db in ['cognix.db']:
     if os.path.exists(db):
         try:
             conn = sqlite3.connect(db)

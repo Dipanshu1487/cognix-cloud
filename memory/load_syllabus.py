@@ -1,9 +1,10 @@
 import sqlite3
 import os
 import json
+from upload.db import DB_PATH
 
 def load_academic_system():
-    db_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "jarvis.db")
+    db_path = DB_PATH
     conn = sqlite3.connect(db_path)
     cur = conn.cursor()
     

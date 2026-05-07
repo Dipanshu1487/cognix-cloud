@@ -4,7 +4,8 @@ import datetime
 import bcrypt
 import json
 
-DB_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'cognix.db')
+DB_NAME = 'cognix.db'
+DB_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), DB_NAME)
 
 def fetch_subjects():
     conn = sqlite3.connect(DB_PATH)

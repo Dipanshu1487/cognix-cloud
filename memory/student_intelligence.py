@@ -1,11 +1,12 @@
 import os
 import sqlite3
+from upload.db import DB_PATH
 from .topic_router import TopicRouter
 
 class StudentIntelligenceSystem:
     def __init__(self, db_config):
         self.router = TopicRouter(db_config)
-        self.db_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "cognix.db")
+        self.db_path = DB_PATH
 
     def process_chat_interaction(self, user_id, query):
         res = self.router.identify_topic(query)

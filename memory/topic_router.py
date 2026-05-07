@@ -1,10 +1,11 @@
 import sqlite3
 import os
 import difflib
+from upload.db import DB_PATH
 
 class TopicRouter:
     def __init__(self, db_config=None):
-        self.db_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "cognix.db")
+        self.db_path = DB_PATH
 
     def _get_connection(self):
         return sqlite3.connect(self.db_path)

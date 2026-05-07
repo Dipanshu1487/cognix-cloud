@@ -324,5 +324,5 @@ if __name__ == "__main__":
     # If run standalone for testing
     st.set_page_config(page_title="cogniX Chat Test")
     if "db_config" not in st.session_state:
-        st.session_state.db_config = {"dbname": "cognix_db", "user": "postgres", "password": "", "host": "localhost", "use_sqlite": True}
+        st.session_state.db_config = {"dbname": "cognix.db", "user": "postgres", "password": "", "host": "localhost", "use_sqlite": True}
     render_chat()

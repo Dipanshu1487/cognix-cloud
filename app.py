@@ -67,7 +67,7 @@ state_defaults = {
     "reset_user": None,
     "active_topic": None,
     "active_subject": None,
-    "db_config": {"dbname": "cognix_db", "user": "postgres", "password": "", "host": "localhost", "use_sqlite": True},
+    "db_config": {"dbname": "cognix.db", "user": "postgres", "password": "", "host": "localhost", "use_sqlite": True},
 }
 
 for key, val in state_defaults.items():

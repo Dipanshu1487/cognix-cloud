@@ -1,10 +1,11 @@
 import sqlite3
 import os
+from upload.db import DB_PATH
 
 class StudentTrackerV2:
     def __init__(self, db_config):
         self.config = db_config
-        self.db_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "jarvis.db")
+        self.db_path = DB_PATH
 
     def _get_connection(self):
         return sqlite3.connect(self.db_path, check_same_thread=False)
