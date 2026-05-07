@@ -2,6 +2,7 @@ import streamlit as st
 import upload.db as db
 import pandas as pd
 from ui.styles import THEMES, ACCENTS
+from core.gemini_engine import ask_gemini
 
 def _t():
     return THEMES.get(st.session_state.get("theme", "light"), THEMES["light"])
@@ -12,22 +13,11 @@ def render_dashboard():
     
     # ── Welcome Section ──────────────────────────────────────────────
     st.markdown(f"<h1 id='welcome-to-cognix'>Welcome back, {u['name']}</h1>", unsafe_allow_html=True)
-    st.markdown(f"<p style='color:{t['muted']}; margin-top:-16px; margin-bottom:32px; font-size:24px;'>Your neural pathway optimization is standing by.</p>", unsafe_allow_html=True)
+
 
     stats = db.get_dashboard_stats(u['id'])
 
-    # ── Insight Box (Large) ──────────────────────────────────────────
-    insight_bg = "rgba(34, 197, 94, 0.1)" if not stats['weak_topics'] else "rgba(245, 158, 11, 0.1)"
-    insight_border = "rgba(34, 197, 94, 0.2)" if not stats['weak_topics'] else "rgba(245, 158, 11, 0.2)"
-    insight_text = "✅ Insight: You are performing well across all topics!" if not stats['weak_topics'] else "⚠️ Insight: Focus on weak topics to improve performance."
-    
-    st.markdown(
-        f"<div style='background:{insight_bg}; border: 1px solid {insight_border}; "
-        f"padding: 24px; border-radius: 12px; margin-bottom: 32px; color: {t['text']}; font-size: 24px; font-weight:500;'>"
-        f"{insight_text}"
-        f"</div>",
-        unsafe_allow_html=True
-    )
+
 
     # ── Stats Row (Massive) ──────────────────────────────────────────
     c1, c2, c3, c4 = st.columns(4)
@@ -163,24 +153,31 @@ def render_dashboard():
     with col1:
         st.subheader("💡 Learning Insights")
         
-        # AI Motivational Quote Logic
-        if "dash_quote" not in st.session_state or st.button("🔄 Refresh Insight"):
-            with st.spinner("Generating insight..."):
-                prompt = (f"User Progress: {stats['topics_completed']} topics completed, "
-                          f"{stats['weak_count']} active topics, {int(stats['avg_accuracy'])}% accuracy. "
-                          "Generate a short, powerful, and unique motivational quote (1-2 sentences) "
-                          "for a student using the cogniX AI learning platform. Make it feel elite and encouraging.")
+        # AI Analytical Insight Logic
+        if "dash_insight" not in st.session_state or st.button("🔄 Refresh Analysis"):
+            with st.spinner("Synthesizing academic report..."):
+                prompt = (
+                    f"Academic Profile: {u['name']}\n"
+                    f"Metrics: {stats['topics_completed']} completed, {int(stats['avg_accuracy'])}% accuracy, {stats['weak_count']} active/weak topics.\n"
+                    f"Task: Provide a professional, data-driven academic assessment. "
+                    f"Include: \n"
+                    f"1. Performance Observation (based on accuracy).\n"
+                    f"2. Weak Topic Recommendations (for the {stats['weak_count']} active areas).\n"
+                    f"3. Strategic Study Suggestion (next steps).\n"
+                    f"Tone: Analytical, clinical, and academic. No motivational or neural-pathway metaphors."
+                )
                 try:
-                    st.session_state.dash_quote = ask_gemini(prompt)
+                    st.session_state.dash_insight = ask_gemini(prompt)
                 except:
-                    st.session_state.dash_quote = "Your potential is limitless. Keep optimizing your neural pathways."
+                    st.session_state.dash_insight = "Academic analysis currently unavailable. Continue your curriculum to generate more telemetry data."
         
-        st.info(st.session_state.dash_quote)
-        
-        if stats['weak_count'] > 0:
-            st.warning(f"You have {stats['weak_count']} topics opened but not yet completed. Consider finishing them to optimize your neural pathways.")
-        else:
-            st.success("You are performing well across all topics!")
+        st.markdown(f"""
+            <div style="background: {t['hover']}; padding: 24px; border-radius: 12px; border-left: 5px solid {t['accent']}; margin-bottom: 24px;">
+                <div style="font-size: 16px; line-height: 1.6; color: {t['text']}; font-family: 'Inter', sans-serif;">
+                    {st.session_state.dash_insight}
+                </div>
+            </div>
+        """, unsafe_allow_html=True)
 
         st.write("")
         st.subheader("Recent Activity")
