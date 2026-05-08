@@ -439,6 +439,7 @@ def ask_lora_brain(user_input):
     if not lora_available:
         return None
 
+    try:
         if _lora_model is None or _lora_tokenizer is None:
             print("[LoRA] Model or Tokenizer is None even though lora_available is True.")
             return None

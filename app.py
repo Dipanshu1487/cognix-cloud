@@ -26,18 +26,30 @@ def start_backend_if_needed():
 
     # 2. Detect & Start Backend
     print("[SYSTEM] Initializing Cognitive Engine...")
+    
+    # Platform-agnostic Python executable detection
     py_exe = sys.executable
-    env_312 = os.path.abspath("jarvis_env_312/Scripts/python.exe")
-    if os.path.exists(env_312):
-        py_exe = env_312
+    
+    # Local Windows venv detection (for local dev stability)
+    for venv_path in ["jarvis_env_312/Scripts/python.exe", "jarvis_env/Scripts/python.exe"]:
+        abs_venv = os.path.abspath(venv_path)
+        if os.path.exists(abs_venv):
+            py_exe = abs_venv
+            break
     
     try:
         # Start uvicorn with logs suppressed
+        # Use 127.0.0.1 for local/cloud internal loopback stability
         cmd = [py_exe, "-m", "uvicorn", "api.server:app", "--host", "127.0.0.1", "--port", "8000"]
+        
+        # On some Cloud environments, we might need to specify the full path to uvicorn
+        # if -m uvicorn fails. But usually -m works if installed.
         subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        time.sleep(2) 
+        
+        # Give it a bit more time to ignite
+        time.sleep(3) 
         st.session_state.backend_started = True
-        print("[SYSTEM] Engine started successfully.")
+        print(f"[SYSTEM] Engine started via {py_exe}")
     except Exception as e:
         print(f"[ERROR] Engine failed to ignite: {e}")
 
