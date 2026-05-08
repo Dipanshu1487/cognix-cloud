@@ -101,10 +101,14 @@ def get_response(query_text):
         if detection and isinstance(detection, dict):
             tid = detection.get('topic_id')
             if tid:
+                print(f"[UI] Detected topic_id: {tid}")
                 topic_details = sis.get_topic_details(tid)
                 if topic_details:
                     topic_context = f"\nFocused Topic: {topic_details.get('name')}\nTopic Details: {topic_details.get('description')}"
                     st.session_state.last_academic_topic = topic_details.get('name')
+                else:
+                    print(f"[UI] Topic ID {tid} exists in subtopics but NOT in topics table (Restructuring artifact?)")
+                    topic_context = "\nFocused Topic: [Unknown - Restructuring]"
         elif active_topic_id:
             topic_details = sis.get_topic_details(active_topic_id)
             if topic_details:
@@ -117,24 +121,39 @@ def get_response(query_text):
         last_topic = st.session_state.get("last_academic_topic")
         full_query = f"Previous topic: {last_topic}\nUser query: {query_text}\n\nSince this query is a follow-up, refer to the previous topic '{last_topic}' and provide a detailed academic response."
     else:
-        full_query = f"You are an academic assistant. {topic_context}\n\nUser: {query_text}"
+        # Graceful fallback if no topic context was found for an academic query
+        if not topic_context and not is_followup:
+            # We still send to brain, but the brain should know there's no specific content
+            full_query = f"You are an academic assistant. Note: No specific study content found for this topic yet. Please provide a general academic explanation.\n\nUser: {query_text}"
+        else:
+            full_query = f"You are an academic assistant. {topic_context}\n\nUser: {query_text}"
     
     if file_context:
         full_query = f"{file_context}\n\nBased on the document context above, please answer this query: {query_text}"
     
     try:
         response = requests.post("http://127.0.0.1:8000/chat", json={"query": full_query}, timeout=30)
-        jarvis_response = response.json().get("response", "No response received.") if response.status_code == 200 else f"Error: {response.status_code}"
+        if response.status_code == 200:
+            jarvis_response = response.json().get("response", "No response received.")
+        else:
+            err_detail = "Unknown error"
+            try: err_detail = response.json().get("detail", "No details")
+            except: pass
+            jarvis_response = f"Error: {response.status_code} - {err_detail}"
+            print(f"[UI] Backend Error: {jarvis_response}")
+            
     except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
         # FALLBACK TO GEMINI DIRECTLY
         from core.gemini_engine import ask_gemini
         try:
             jarvis_response = ask_gemini(full_query)
-            # Add a small hint that we're using fallback
             jarvis_response = f"✨ [Gemini Fallback] {jarvis_response}"
         except Exception as e:
             jarvis_response = f"Backend Unreachable & Gemini Error: {e}"
     except Exception as e:
+        import traceback
+        print(f"[UI] Unexpected Error: {e}")
+        traceback.print_exc()
         jarvis_response = f"Error: {e}"
 
     tracking_data = {"logged": False}

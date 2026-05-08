@@ -39,8 +39,16 @@ conversation_history = []
 def build_context(query):
     """
     Formats the last 3 turns into a structured context for the LLM.
+    Ensures all history items are strings.
     """
-    history = "\n".join(conversation_history[-6:])
+    history_items = []
+    for item in conversation_history[-6:]:
+        if isinstance(item, dict):
+            history_items.append(f"User: {item.get('user', '')}\nAssistant: {item.get('cognix', '')}")
+        else:
+            history_items.append(str(item))
+            
+    history = "\n".join(history_items)
     
     # Enhanced System Prompt from Brain v2 spec
     academic_system_prompt = (
@@ -56,6 +64,11 @@ def build_context(query):
     )
 
     return academic_system_prompt, f"### Conversation Memory:\n{history}\n\n### Current Query:\n{query}\n\n### Response:"
+
+def get_contextual_prompt(query):
+    """Missing utility to build a flat prompt string for models."""
+    sys_prompt, user_prompt = build_context(query)
+    return f"{sys_prompt}\n\n{user_prompt}"
 
 
 # --- Retrieval Layer: Knowledge Base ---
@@ -426,16 +439,20 @@ def ask_lora_brain(user_input):
     if not lora_available:
         return None
 
-    try:
+        if _lora_model is None or _lora_tokenizer is None:
+            print("[LoRA] Model or Tokenizer is None even though lora_available is True.")
+            return None
+
         # Build prompt with strict Conversation/Instruction separation
         prompt = get_contextual_prompt(user_input)
         prompt += "\n\n### Response:\n"
+        
         inputs = _lora_tokenizer(prompt, return_tensors="pt").to(_lora_model.device)
         
         with torch.no_grad():
             outputs = _lora_model.generate(
                 **inputs,
-                max_new_tokens=150,
+                max_new_tokens=200,
                 pad_token_id=_lora_tokenizer.pad_token_id,
                 eos_token_id=_lora_tokenizer.eos_token_id,
                 do_sample=True,
@@ -535,84 +552,96 @@ def ask_local_conversation(command):
     print("USER (Raw):", raw_query)
     print("USER (Normalized):", query)
 
-    # 1. INTENT DETECTION
-    intent = detect_intent(query)
-    print(f"[Brain] Intent detected: {intent}")
+    try:
+        # 1. INTENT DETECTION
+        intent = detect_intent(query)
+        print(f"[Brain] Intent detected: {intent}")
 
-    # 2. SPECIALIZED HANDLERS
-    if intent == "math":
-        math_result = solve_math(query)
-        if math_result:
-            print("SOURCE: MATH")
-            print("FINAL:", math_result)
+        # 2. SPECIALIZED HANDLERS
+        if intent == "math":
+            math_result = solve_math(query)
+            if math_result:
+                print("SOURCE: MATH")
+                print("FINAL:", math_result)
+                conversation_history.append(f"User: {query}")
+                conversation_history.append(f"Jarvis: {math_result}")
+                return math_result
+        
+        # 3. RETRIEVAL LAYER (Fuzzy)
+        kb_answer = retrieve_answer(query, KNOWLEDGE_BASE)
+        if kb_answer:
+            print("SOURCE: KB")
+            print("FINAL:", kb_answer)
             conversation_history.append(f"User: {query}")
-            conversation_history.append(f"Jarvis: {math_result}")
-            return math_result
-    
-    # 3. RETRIEVAL LAYER (Fuzzy)
-    kb_answer = retrieve_answer(query, KNOWLEDGE_BASE)
-    if kb_answer:
-        print("SOURCE: KB")
-        print("FINAL:", kb_answer)
+            conversation_history.append(f"Jarvis: {kb_answer}")
+            return kb_answer
+
+        # 4. GENERATION LAYER (Context-Aware)
+        print("SOURCE: MODEL")
+        system_prompt, contextual_query = build_context(query)
+        
+        safe_fallback = "I don't know the answer to that yet."
+        generated_raw = None
+
+        # Try Academic LoRA first ONLY if it's a technical academic query
+        if (intent in ["knowledge", "general"]) and lora_available and is_academic_query(query):
+            # LoRA engine expects specific format, adapting contextual_query
+            generated_raw = ask_lora_brain(query) 
+            if generated_raw:
+                 print("MODEL RAW (LoRA):", generated_raw)
+
+        if not generated_raw:
+            # Fallback to Ollama (phi3) with full context
+            try:
+                response = ollama.chat(
+                    model="phi3",
+                    messages=[
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": contextual_query}
+                    ],
+                    options={
+                        "num_predict": 250,
+                        "temperature": 0.3,
+                        "top_p": 0.9,
+                    }
+                )
+                generated_raw = response["message"]["content"].strip()
+                print("MODEL RAW (Ollama):", generated_raw)
+            except Exception as e:
+                print(f"[Brain] Generation Error: {e}")
+                generated_raw = ""
+
+        # 5. VALIDATION & CLEANING
+        if not generated_raw:
+            return safe_fallback
+            
+        if not validate_response(query, generated_raw):
+            print(f"VALIDATION FAILED")
+            # If it's a short response that failed validation, it might still be okay if it's simple
+            if len(generated_raw.split()) > 1:
+                return clean_response(generated_raw)
+            return safe_fallback
+
+        final_answer = clean_response(generated_raw)
+        
+        # Final strip of any lingering markers
+        if "### Response:" in final_answer:
+            final_answer = final_answer.split("### Response:")[-1].strip()
+
+        print("FINAL:", final_answer)
+        
+        # Maintain History (last 3 turns = 6 items)
         conversation_history.append(f"User: {query}")
-        conversation_history.append(f"Jarvis: {kb_answer}")
-        return kb_answer
+        conversation_history.append(f"Jarvis: {final_answer}")
+        if len(conversation_history) > 6:
+            conversation_history = conversation_history[-6:]
 
-    # 4. GENERATION LAYER (Context-Aware)
-    print("SOURCE: MODEL")
-    system_prompt, contextual_query = build_context(query)
-    
-    safe_fallback = "I don't know the answer to that yet."
-    generated_raw = None
-
-    # Try Academic LoRA first ONLY if it's a technical academic query
-    if (intent in ["knowledge", "general"]) and lora_available and is_academic_query(query):
-        # LoRA engine expects specific format, adapting contextual_query
-        generated_raw = ask_lora_brain(query) 
-        if generated_raw:
-             print("MODEL RAW (LoRA):", generated_raw)
-
-    if not generated_raw:
-        # Fallback to Ollama (phi3) with full context
-        try:
-            response = ollama.chat(
-                model="phi3",
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": contextual_query}
-                ],
-                options={
-                    "num_predict": 150,
-                    "temperature": 0.3,
-                    "top_p": 0.9,
-                }
-            )
-            generated_raw = response["message"]["content"].strip()
-            print("MODEL RAW (Ollama):", generated_raw)
-        except Exception as e:
-            print(f"[Brain] Generation Error: {e}")
-            generated_raw = ""
-
-    # 5. VALIDATION & CLEANING
-    if not validate_response(query, generated_raw):
-        print(f"VALIDATION FAILED")
-        return safe_fallback
-
-    final_answer = clean_response(generated_raw)
-    
-    # Final strip of any lingering markers
-    if "### Response:" in final_answer:
-        final_answer = final_answer.split("### Response:")[-1].strip()
-
-    print("FINAL:", final_answer)
-    
-    # Maintain History (last 3 turns = 6 items)
-    conversation_history.append(f"User: {query}")
-    conversation_history.append(f"Jarvis: {final_answer}")
-    if len(conversation_history) > 6:
-        conversation_history = conversation_history[-6:]
-
-    return final_answer
+        return final_answer
+    except Exception as e:
+        import traceback
+        print(f"[Brain] CRITICAL ERROR in pipeline: {e}")
+        traceback.print_exc()
+        return "I apologize, but my cognitive processor encountered an error. Please try rephrasing your query."
 
 
 

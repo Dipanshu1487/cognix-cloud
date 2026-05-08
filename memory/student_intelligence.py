@@ -9,16 +9,29 @@ class StudentIntelligenceSystem:
         self.db_path = DB_PATH
 
     def process_chat_interaction(self, user_id, query):
+        if not user_id or not query:
+            return None
+            
         res = self.router.identify_topic(query)
-        if res:
-            topic_id = res['subtopic_id'] # Note: identifier is subtopic_id in router
-            conn = sqlite3.connect(self.db_path)
-            cur = conn.cursor()
-            cur.execute("UPDATE user_progress SET attempts = attempts + 1, last_updated = CURRENT_TIMESTAMP WHERE topic_id = ? AND user_id = ?", (topic_id, user_id))
-            if cur.rowcount == 0:
-                cur.execute("INSERT INTO user_progress (user_id, topic_id, attempts) VALUES (?, ?, 1)", (user_id, topic_id))
-            conn.commit()
-            conn.close()
+        if res and isinstance(res, dict):
+            # FIXED: Use actual topic_id from subtopics table mapping, not the subtopic_id itself
+            topic_id = res.get('topic_id')
+            if not topic_id:
+                print(f"[SIS] Warning: No topic_id found in detection result for '{res.get('name')}'")
+                return res
+
+            try:
+                conn = sqlite3.connect(self.db_path)
+                cur = conn.cursor()
+                # Use the correct topic_id column
+                cur.execute("UPDATE user_progress SET attempts = attempts + 1, last_updated = CURRENT_TIMESTAMP WHERE topic_id = ? AND user_id = ?", (topic_id, user_id))
+                if cur.rowcount == 0:
+                    cur.execute("INSERT INTO user_progress (user_id, topic_id, attempts) VALUES (?, ?, 1)", (user_id, topic_id))
+                conn.commit()
+                conn.close()
+            except sqlite3.Error as e:
+                print(f"[SIS] Database error in interaction tracking: {e}")
+            
             return res
         return None
 

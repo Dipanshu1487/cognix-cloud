@@ -62,6 +62,8 @@ async def health_check():
         "hardware": hw
     }
 
+import traceback
+
 @app.post("/chat", response_model=QueryResponse)
 async def chat(request: QueryRequest):
     """
@@ -82,12 +84,17 @@ async def chat(request: QueryRequest):
         return QueryResponse(response=str(answer))
         
     except Exception as e:
-        logger.error(f"API Error: {e}")
-        raise HTTPException(status_code=500, detail="Internal system error in cogniX brain.")
+        logger.error(f"API Error: {str(e)}")
+        logger.error(traceback.format_exc())
+        # Return graceful message instead of crashing with 500 if possible, 
+        # but the task asks to fix the 500 error and provide proper exception handling.
+        raise HTTPException(status_code=500, detail=f"Internal system error: {str(e)}")
 
 @app.get("/health")
 async def health_check():
-    return {"status": "operational", "version": "3.1"}
+    import torch
+    hw = f"GPU: {torch.cuda.get_device_name(0)}" if torch.cuda.is_available() else "CPU Mode"
+    return {"status": "operational", "version": "3.1", "hardware": hw}
 
 if __name__ == "__main__":
     import uvicorn
