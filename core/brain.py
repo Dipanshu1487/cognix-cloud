@@ -563,8 +563,7 @@ def ask_local_conversation(command):
             if math_result:
                 print("SOURCE: MATH")
                 print("FINAL:", math_result)
-                conversation_history.append(f"User: {query}")
-                conversation_history.append(f"Jarvis: {math_result}")
+                update_history(query, math_result)
                 return math_result
         
         # 3. RETRIEVAL LAYER (Fuzzy)
@@ -572,8 +571,7 @@ def ask_local_conversation(command):
         if kb_answer:
             print("SOURCE: KB")
             print("FINAL:", kb_answer)
-            conversation_history.append(f"User: {query}")
-            conversation_history.append(f"Jarvis: {kb_answer}")
+            update_history(query, kb_answer)
             return kb_answer
 
         # 4. GENERATION LAYER (Context-Aware)
@@ -630,11 +628,8 @@ def ask_local_conversation(command):
 
         print("FINAL:", final_answer)
         
-        # Maintain History (last 3 turns = 6 items)
-        conversation_history.append(f"User: {query}")
-        conversation_history.append(f"Jarvis: {final_answer}")
-        if len(conversation_history) > 6:
-            conversation_history = conversation_history[-6:]
+        # Maintain History using the unified update_history function
+        update_history(query, final_answer)
 
         return final_answer
     except Exception as e:
