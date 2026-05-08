@@ -17,7 +17,8 @@ def start_backend_if_needed():
     # 1. Health Check
     url = "http://127.0.0.1:8000/health"
     try:
-        res = requests.get(url, timeout=1)
+        # 3s timeout to allow for slightly busy but responsive engines
+        res = requests.get(url, timeout=3)
         if res.status_code == 200:
             st.session_state.backend_started = True
             return
@@ -121,7 +122,8 @@ start_backend_if_needed()
 def get_backend_status():
     import requests
     try:
-        res = requests.get("http://127.0.0.1:8000/health", timeout=1)
+        # Increase timeout for cloud stability during cold starts
+        res = requests.get("http://127.0.0.1:8000/health", timeout=5)
         return res.status_code == 200
     except:
         return False
