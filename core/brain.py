@@ -553,40 +553,41 @@ def ask_local_conversation(command):
     print("USER (Normalized):", query)
 
     try:
-        # 1. INTENT DETECTION
+        # 1. GENERATION LAYER (Primary: LoRA Academic Brain)
+        # Bypassing auto-detection as per request to use LoRA directly
+        if lora_available:
+            print("SOURCE: LoRA (Direct)")
+            generated_raw = ask_lora_brain(query)
+            if generated_raw:
+                final_answer = clean_response(generated_raw)
+                if "### Response:" in final_answer:
+                    final_answer = final_answer.split("### Response:")[-1].strip()
+                print("FINAL:", final_answer)
+                update_history(query, final_answer)
+                return final_answer
+
+        # 2. FALLBACK: Intent & Specialized Handlers (Math/KB)
         intent = detect_intent(query)
         print(f"[Brain] Intent detected: {intent}")
 
-        # 2. SPECIALIZED HANDLERS
         if intent == "math":
             math_result = solve_math(query)
             if math_result:
                 print("SOURCE: MATH")
-                print("FINAL:", math_result)
                 update_history(query, math_result)
                 return math_result
         
-        # 3. RETRIEVAL LAYER (Fuzzy)
-        kb_answer = retrieve_answer(query, KNOWLEDGE_BASE)
-        if kb_answer:
+        if kb_answer := retrieve_answer(query, KNOWLEDGE_BASE):
             print("SOURCE: KB")
-            print("FINAL:", kb_answer)
             update_history(query, kb_answer)
             return kb_answer
 
-        # 4. GENERATION LAYER (Context-Aware)
-        print("SOURCE: MODEL")
+        # 3. GENERATION LAYER (Ollama Fallback)
+        print("SOURCE: MODEL (Fallback)")
         system_prompt, contextual_query = build_context(query)
         
         safe_fallback = "I don't know the answer to that yet."
         generated_raw = None
-
-        # Try Academic LoRA first ONLY if it's a technical academic query
-        if (intent in ["knowledge", "general"]) and lora_available and is_academic_query(query):
-            # LoRA engine expects specific format, adapting contextual_query
-            generated_raw = ask_lora_brain(query) 
-            if generated_raw:
-                 print("MODEL RAW (LoRA):", generated_raw)
 
         if not generated_raw:
             # Fallback to Ollama (phi3) with full context

@@ -95,26 +95,9 @@ def get_response(query_text):
     # Classification
     is_general = False
     
+    # Topic Detection Disabled as per request
     detection = None
-    if not is_general:
-        detection = sis.process_chat_interaction(st.session_state.user['id'], query_text)
-        if detection and isinstance(detection, dict):
-            tid = detection.get('topic_id')
-            if tid:
-                print(f"[UI] Detected topic_id: {tid}")
-                topic_details = sis.get_topic_details(tid)
-                if topic_details:
-                    topic_context = f"\nFocused Topic: {topic_details.get('name')}\nTopic Details: {topic_details.get('description')}"
-                    st.session_state.last_academic_topic = topic_details.get('name')
-                else:
-                    print(f"[UI] Topic ID {tid} exists in subtopics but NOT in topics table (Restructuring artifact?)")
-                    topic_context = "\nFocused Topic: [Unknown - Restructuring]"
-        elif active_topic_id:
-            topic_details = sis.get_topic_details(active_topic_id)
-            if topic_details:
-                topic_context = f"\nCurrently Studying: {topic_details.get('name')}\nTopic Context: {topic_details.get('description')}"
-                st.session_state.last_academic_topic = topic_details.get('name')
-
+    
     if is_general:
         full_query = f"The user is asking a general knowledge question. Please answer normally.\n\nUser: {query_text}"
     elif is_followup and st.session_state.get("last_academic_topic"):
@@ -273,15 +256,7 @@ def render_chat():
             if msg["role"] == "You":
                 st.markdown(f'<div class="chat-row user"><div class="chat-bubble user">{msg["content"]}</div></div>', unsafe_allow_html=True)
             else:
-                track = msg.get("tracking", {})
-                track_html = ""
-                if track.get("logged"):
-                    track_html = f"""
-                    <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid {t['border']}; font-size: 0.8em; color: {t['muted']};">
-                        📍 Auto-detected Topic: {track['topic_name']}
-                    </div>
-                    """
-                st.markdown(f'<div class="chat-row assistant"><div class="chat-bubble assistant">{msg["content"]}{track_html}</div></div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="chat-row assistant"><div class="chat-bubble assistant">{msg["content"]}</div></div>', unsafe_allow_html=True)
         
         if st.session_state.get("is_thinking"):
             st.markdown(f'<div class="chat-row assistant"><div class="chat-bubble assistant"><div class="typing-dot"></div><div class="typing-dot" style="animation-delay:0.2s"></div><div class="typing-dot" style="animation-delay:0.4s"></div></div></div>', unsafe_allow_html=True)
